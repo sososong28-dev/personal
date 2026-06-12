@@ -332,11 +332,18 @@ HOME_TEMPLATE = """
     .method-label { color: var(--blue); font-size: 13px; font-weight: 850; }
     .method-copy { max-width: 760px; color: var(--muted); font-size: 16px; line-height: 1.72; }
     .project-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 34px; }
+    .project-showcase { display: grid; grid-template-columns: minmax(280px, .82fr) minmax(420px, 1.18fr); gap: 22px; align-items: start; margin-top: 34px; }
+    .project-showcase .project-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 0; }
     .project-card { position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; min-height: 318px; padding: 26px; border: 1px solid rgba(210, 210, 215, .82); border-radius: 8px; background: var(--panel); box-shadow: 0 20px 55px rgba(29, 29, 31, .055); transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+    .project-showcase .project-card { min-height: auto; padding: 20px; cursor: pointer; }
+    .project-card:focus-visible { outline: 3px solid rgba(255, 36, 66, .24); outline-offset: 3px; }
+    .project-card.is-selected { border-color: rgba(255, 36, 66, .78); box-shadow: 0 24px 62px rgba(29, 29, 31, .12); }
+    .project-card.is-selected::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 0 999px 999px 0; background: #FF2442; }
     .project-card h3 { margin: 0 0 12px; font-size: 30px; line-height: 1.12; }
     .project-card p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
     .project-card.large { display: grid; align-content: end; color: #f5f5f7; background: #19191d; }
     .project-card.large p { color: #a1a1a6; }
+    .project-card.large.is-selected { border-color: rgba(255, 36, 66, .78); }
     .project-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
     .project-meta span { display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border: 1px solid rgba(210, 210, 215, .86); border-radius: 999px; color: #424245; background: rgba(245, 245, 247, .74); font-size: 12px; font-weight: 820; }
     .proof-list { display: grid; gap: 10px; margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(210, 210, 215, .72); }
@@ -346,8 +353,28 @@ HOME_TEMPLATE = """
     .project-card.large .proof-list { border-top-color: rgba(245, 245, 247, .16); }
     .project-card.large .proof-line { color: #a1a1a6; }
     .project-card.large .proof-line strong { color: #f5f5f7; }
-    .case-link { display: inline-flex; align-items: center; width: fit-content; min-height: 38px; margin-top: auto; padding: 0 14px; border: 1px solid rgba(0, 113, 227, .24); border-radius: 8px; color: var(--blue); background: rgba(0, 113, 227, .08); font-size: 14px; font-weight: 850; transition: transform .22s ease, background .22s ease, border-color .22s ease; }
+    .case-link { appearance: none; display: inline-flex; align-items: center; width: fit-content; min-height: 38px; margin-top: auto; padding: 0 14px; border: 1px solid rgba(0, 113, 227, .24); border-radius: 8px; color: var(--blue); background: rgba(0, 113, 227, .08); font: inherit; font-size: 14px; font-weight: 850; cursor: pointer; transition: transform .22s ease, background .22s ease, border-color .22s ease; }
     .project-card > .small { margin-top: 0; }
+    .project-preview { position: sticky; top: 76px; overflow: hidden; min-height: 640px; padding: 18px; border: 1px solid rgba(255, 255, 255, .08); border-radius: 24px; color: #f5f5f7; background: #121214; box-shadow: 0 30px 80px rgba(0, 0, 0, .18); }
+    .preview-animate { transform-origin: center bottom; }
+    .project-preview.is-switching .preview-animate { animation: detailSwap .34s cubic-bezier(.2, .8, .2, 1) both; }
+    .preview-media { overflow: hidden; aspect-ratio: 16 / 10; border: 1px solid rgba(255, 255, 255, .08); border-radius: 20px; background: #1d1d20; }
+    .preview-media img { width: 100%; height: 100%; display: block; object-fit: cover; transform: scale(1.01); transition: transform .35s ease; }
+    .project-preview:hover .preview-media img { transform: scale(1.035); }
+    .preview-content { padding: 20px 4px 4px; }
+    .preview-kicker { margin: 0 0 10px; color: #FF2442; font-size: 12px; font-weight: 900; letter-spacing: 0; }
+    .preview-title { margin: 0; font-size: 36px; line-height: 1.06; font-weight: 880; }
+    .preview-description { margin: 14px 0 0; color: #d2d2d7; font-size: 17px; line-height: 1.62; }
+    .preview-body { margin: 14px 0 0; color: #a1a1a6; font-size: 15px; line-height: 1.72; }
+    .preview-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .preview-tags span { display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border: 1px solid rgba(255, 255, 255, .08); border-radius: 999px; color: #f5f5f7; background: rgba(255, 255, 255, .06); font-size: 12px; font-weight: 820; }
+    .preview-proof { display: grid; gap: 12px; margin-top: 22px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, .08); }
+    .preview-proof-line { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 14px; color: #a1a1a6; font-size: 14px; line-height: 1.62; }
+    .preview-proof-line strong { color: #f5f5f7; font-size: 12px; font-weight: 900; }
+    .preview-actions { margin-top: 22px; }
+    .preview-link { display: inline-flex; align-items: center; min-height: 40px; padding: 0 15px; border: 1px solid rgba(255, 36, 66, .45); border-radius: 10px; color: #fff; background: #FF2442; font-size: 14px; font-weight: 850; transition: transform .22s ease, background .22s ease; }
+    .preview-link[hidden] { display: none; }
+    @keyframes detailSwap { from { opacity: 0; transform: translateY(20px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .small { margin-top: 18px; color: var(--muted); font-size: 13px; font-weight: 800; }
     .resource-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 34px; }
     .resource { position: relative; overflow: hidden; isolation: isolate; min-height: 188px; padding: 22px; border: 1px solid rgba(245, 245, 247, .16); border-radius: 8px; background: rgba(255, 255, 255, .08); transition: transform .3s ease, border-color .3s ease, background .3s ease; }
@@ -379,7 +406,10 @@ HOME_TEMPLATE = """
       .section-inner { padding: 0 18px; }
       .hero { padding: 38px 0 30px; }
       .hero::before { inset: -72px 0 auto auto; width: 260px; height: 260px; }
-      .hero-grid, .project-grid, .project-method { grid-template-columns: 1fr; }
+      .hero-grid, .project-grid, .project-method, .project-showcase { grid-template-columns: 1fr; }
+      .project-preview { position: relative; top: auto; min-height: 0; border-radius: 20px; }
+      .preview-title { font-size: 30px; }
+      .preview-media { aspect-ratio: 1.18; }
       h1 { font-size: 42px; }
       .lead { font-size: 17px; }
       .section-title { font-size: 34px; }
@@ -463,8 +493,9 @@ HOME_TEMPLATE = """
           <div class="method-label">Project index system</div>
           <div class="method-copy">这次借鉴社交卡片 skill 的做法：每张卡片只回答一个问题——这是什么项目、能证明什么、下一步看哪里。图片和长文不在首页堆叠，作为详情页里的证据层出现。</div>
         </div>
-        <div class="project-grid">
-          <article class="project-card">
+        <div class="project-showcase">
+          <div class="project-grid" aria-label="项目入口">
+          <article class="project-card is-selected" role="button" tabindex="0" aria-pressed="true" data-project-card data-kicker="BRAND PROJECT 01" data-title="益口葛葛" data-description="健康提神咀嚼品品牌从产品定位、包装迭代、线下铺市到线上电商增长的项目案例。" data-body="首页只展示这个项目的定位和证据线索，完整包装、渠道、内容、电商和复购系统继续保留在既有详情页。" data-tags="品牌 0-1|12 张素材|已成详情页" data-evidence="产品包装、终端陈列、赛事展会、直播电商、复购系统。" data-focus="把消费品品牌从概念、内容、渠道到招商链路重新组织成案例。" data-image="{{ url_for('static', filename='projects/yikougege/assets/product-family.jpg') }}" data-alt="益口葛葛产品组合展示" data-link="/me/projects/yikougege" data-link-label="查看完整案例">
             <div class="small">BRAND PROJECT 01</div>
             <h3>益口葛葛</h3>
             <div class="project-meta"><span>品牌 0-1</span><span>12 张素材</span><span>已成详情页</span></div>
@@ -473,9 +504,9 @@ HOME_TEMPLATE = """
               <div class="proof-line"><strong>证据</strong><span>产品包装、终端陈列、赛事展会、直播电商、复购系统。</span></div>
               <div class="proof-line"><strong>重点</strong><span>把消费品品牌从概念、内容、渠道到招商链路重新组织成案例。</span></div>
             </div>
-            <a class="case-link" href="/me/projects/yikougege">查看案例</a>
+            <button class="case-link" type="button">查看案例</button>
           </article>
-          <article class="project-card">
+          <article class="project-card" role="button" tabindex="0" aria-pressed="false" data-project-card data-kicker="BRAND PROJECT 02" data-title="可复美" data-description="重组胶原蛋白产品培训、医学修护场景教育、药店门店和 O2O 动销承接的项目案例。" data-body="右侧预览保留产品线、医院渠道、达人内容和门店承接这些已有材料线索，点击可继续进入既有详情页。" data-tags="产品培训|14 张素材|已成详情页" data-evidence="产品线、医院渠道、达人内容、明星素材、门店陈列、O2O 头图。" data-focus="把复杂产品讲义整理成店员能讲、用户能懂的培训系统。" data-image="{{ url_for('static', filename='projects/kefumei/assets/brand-lineup.jpg') }}" data-alt="可复美产品线展示" data-link="/me/projects/kefumei" data-link-label="查看完整案例">
             <div class="small">BRAND PROJECT 02</div>
             <h3>可复美</h3>
             <div class="project-meta"><span>产品培训</span><span>14 张素材</span><span>已成详情页</span></div>
@@ -484,9 +515,9 @@ HOME_TEMPLATE = """
               <div class="proof-line"><strong>证据</strong><span>产品线、医院渠道、达人内容、明星素材、门店陈列、O2O 头图。</span></div>
               <div class="proof-line"><strong>重点</strong><span>把复杂产品讲义整理成店员能讲、用户能懂的培训系统。</span></div>
             </div>
-            <a class="case-link" href="/me/projects/kefumei">查看案例</a>
+            <button class="case-link" type="button">查看案例</button>
           </article>
-          <article class="project-card large">
+          <article class="project-card large" role="button" tabindex="0" aria-pressed="false" data-project-card data-kicker="FEATURED PROJECT" data-title="Profile Site" data-description="独立个人经历网站，使用登录保护、独立 cookie、SQLite 数据库、Gunicorn 服务和 Nginx 反向代理。" data-body="它是当前个人档案库本身，承载项目、经历和私密资料，继续保持 /me 私密边界和已有页面结构。" data-tags="独立 Flask|/me 私密|已部署" data-evidence="登录页、项目详情页、私密响应头、服务器服务与静态素材目录。" data-focus="作为长期个人档案库，承载项目、经历和私密资料。" data-image="{{ url_for('static', filename='profile-archive-hero.png') }}" data-alt="私密个人档案站视觉图">
             <div class="small">FEATURED PROJECT</div>
             <h3>Profile Site</h3>
             <div class="project-meta"><span>独立 Flask</span><span>/me 私密</span><span>已部署</span></div>
@@ -496,7 +527,7 @@ HOME_TEMPLATE = """
               <div class="proof-line"><strong>重点</strong><span>作为长期个人档案库，承载项目、经历和私密资料。</span></div>
             </div>
           </article>
-          <article class="project-card">
+          <article class="project-card" role="button" tabindex="0" aria-pressed="false" data-project-card data-kicker="DATA PRODUCT" data-title="数据工具平台" data-description="记录产品数据、报表、竞品信息、价格体系等工具化工作，和个人站保持服务与数据边界。" data-body="这里仍然只作为现有项目入口，不新增案例页；右侧展示它与个人站分离、以工具和流程沉淀业务工作的定位。" data-tags="工具系统|独立边界|待补案例" data-evidence="后续补截图、数据流、自动化脚本和使用场景。" data-focus="展示把业务工作沉淀成工具和流程的能力。" data-image="{{ url_for('static', filename='profile-archive-hero.png') }}" data-alt="数据工具平台项目占位视觉">
             <div class="small">DATA PRODUCT</div>
             <h3>数据工具平台</h3>
             <div class="project-meta"><span>工具系统</span><span>独立边界</span><span>待补案例</span></div>
@@ -506,7 +537,7 @@ HOME_TEMPLATE = """
               <div class="proof-line"><strong>重点</strong><span>展示把业务工作沉淀成工具和流程的能力。</span></div>
             </div>
           </article>
-          <article class="project-card">
+          <article class="project-card" role="button" tabindex="0" aria-pressed="false" data-project-card data-kicker="KNOWLEDGE SYSTEM" data-title="个人知识与内容系统" data-description="整理工作记录、反思、选题、音频、文章和可复用素材，形成长期内容资产。" data-body="保留为现有内容资产入口，不扩成新栏目；右侧只展示它从经历到内容、从素材到系统的整理方向。" data-tags="内容资产|长期沉淀|待补案例" data-evidence="后续补知识库结构、内容选题、复盘文章和输出记录。" data-focus="展示从经历到内容、从素材到系统的整理能力。" data-image="{{ url_for('static', filename='projects/yikougege/assets/content-matrix.jpg') }}" data-alt="个人知识与内容系统占位视觉">
             <div class="small">KNOWLEDGE SYSTEM</div>
             <h3>个人知识与内容系统</h3>
             <div class="project-meta"><span>内容资产</span><span>长期沉淀</span><span>待补案例</span></div>
@@ -516,6 +547,30 @@ HOME_TEMPLATE = """
               <div class="proof-line"><strong>重点</strong><span>展示从经历到内容、从素材到系统的整理能力。</span></div>
             </div>
           </article>
+          </div>
+          <aside class="project-preview" data-project-preview aria-live="polite">
+            <div class="preview-animate">
+              <div class="preview-media">
+                <img data-preview-image src="{{ url_for('static', filename='projects/yikougege/assets/product-family.jpg') }}" alt="益口葛葛产品组合展示" />
+              </div>
+              <div class="preview-content">
+                <p class="preview-kicker" data-preview-kicker>BRAND PROJECT 01</p>
+                <h3 class="preview-title" data-preview-title>益口葛葛</h3>
+                <div class="preview-tags" data-preview-tags>
+                  <span>品牌 0-1</span><span>12 张素材</span><span>已成详情页</span>
+                </div>
+                <p class="preview-description" data-preview-description>健康提神咀嚼品品牌从产品定位、包装迭代、线下铺市到线上电商增长的项目案例。</p>
+                <p class="preview-body" data-preview-body>首页只展示这个项目的定位和证据线索，完整包装、渠道、内容、电商和复购系统继续保留在既有详情页。</p>
+                <div class="preview-proof">
+                  <div class="preview-proof-line"><strong>证据</strong><span data-preview-evidence>产品包装、终端陈列、赛事展会、直播电商、复购系统。</span></div>
+                  <div class="preview-proof-line"><strong>重点</strong><span data-preview-focus>把消费品品牌从概念、内容、渠道到招商链路重新组织成案例。</span></div>
+                </div>
+                <div class="preview-actions">
+                  <a class="preview-link" data-preview-link href="/me/projects/yikougege">查看完整案例</a>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </section>
@@ -553,12 +608,89 @@ HOME_TEMPLATE = """
       updateScroll();
       window.addEventListener("scroll", updateScroll, { passive: true });
 
+      const projectCards = [...document.querySelectorAll("[data-project-card]")];
+      const projectPreview = document.querySelector("[data-project-preview]");
+      const previewImage = document.querySelector("[data-preview-image]");
+      const previewKicker = document.querySelector("[data-preview-kicker]");
+      const previewTitle = document.querySelector("[data-preview-title]");
+      const previewDescription = document.querySelector("[data-preview-description]");
+      const previewBody = document.querySelector("[data-preview-body]");
+      const previewTags = document.querySelector("[data-preview-tags]");
+      const previewEvidence = document.querySelector("[data-preview-evidence]");
+      const previewFocus = document.querySelector("[data-preview-focus]");
+      const previewLink = document.querySelector("[data-preview-link]");
+
+      const fillText = (node, value) => {
+        if (node) node.textContent = value || "";
+      };
+
+      const renderTags = (value) => {
+        if (!previewTags) return;
+        previewTags.replaceChildren();
+        (value || "").split("|").filter(Boolean).forEach((tag) => {
+          const item = document.createElement("span");
+          item.textContent = tag;
+          previewTags.appendChild(item);
+        });
+      };
+
+      const selectProject = (card, animate = true) => {
+        if (!card) return;
+
+        projectCards.forEach((item) => {
+          const isCurrent = item === card;
+          item.classList.toggle("is-selected", isCurrent);
+          item.setAttribute("aria-pressed", isCurrent ? "true" : "false");
+        });
+
+        if (previewImage && card.dataset.image) {
+          previewImage.src = card.dataset.image;
+          previewImage.alt = card.dataset.alt || card.dataset.title || "";
+        }
+
+        fillText(previewKicker, card.dataset.kicker);
+        fillText(previewTitle, card.dataset.title);
+        fillText(previewDescription, card.dataset.description);
+        fillText(previewBody, card.dataset.body);
+        fillText(previewEvidence, card.dataset.evidence);
+        fillText(previewFocus, card.dataset.focus);
+        renderTags(card.dataset.tags);
+
+        if (previewLink) {
+          if (card.dataset.link) {
+            previewLink.hidden = false;
+            previewLink.href = card.dataset.link;
+            previewLink.textContent = card.dataset.linkLabel || "查看完整案例";
+          } else {
+            previewLink.hidden = true;
+            previewLink.removeAttribute("href");
+          }
+        }
+
+        if (animate && !reduceMotion && projectPreview) {
+          projectPreview.classList.remove("is-switching");
+          void projectPreview.offsetWidth;
+          projectPreview.classList.add("is-switching");
+        }
+      };
+
+      projectCards.forEach((card) => {
+        card.addEventListener("click", () => selectProject(card));
+        card.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          selectProject(card);
+        });
+      });
+
+      selectProject(projectCards[0], false);
+
       if (reduceMotion) return;
 
       root.classList.add("motion-ready");
 
       const revealItems = [
-        ...document.querySelectorAll(".status-item, .band .section-title, .band .section-copy, .feature-card, .timeline-item, .project-card, .resource")
+        ...document.querySelectorAll(".status-item, .band .section-title, .band .section-copy, .feature-card, .timeline-item, .project-card, .project-preview, .resource")
       ];
 
       revealItems.forEach((element, index) => {
