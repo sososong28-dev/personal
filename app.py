@@ -355,22 +355,12 @@ HOME_TEMPLATE = """
     .project-card.large .proof-line strong { color: #f5f5f7; }
     .case-link { appearance: none; display: inline-flex; align-items: center; width: fit-content; min-height: 38px; margin-top: auto; padding: 0 14px; border: 1px solid rgba(0, 113, 227, .24); border-radius: 8px; color: var(--blue); background: rgba(0, 113, 227, .08); font: inherit; font-size: 14px; font-weight: 850; cursor: pointer; transition: transform .22s ease, background .22s ease, border-color .22s ease; }
     .project-card > .small { margin-top: 0; }
-    .project-preview { --preview-rx: 0deg; --preview-ry: 0deg; --preview-shine-x: 50%; --preview-shine-y: 34%; position: sticky; top: 76px; overflow: hidden; min-height: 640px; padding: 18px; border: 1px solid rgba(255, 255, 255, .08); border-radius: 24px; color: #f5f5f7; background: #121214; box-shadow: 0 30px 80px rgba(0, 0, 0, .18); transform: perspective(1200px) rotateX(var(--preview-rx)) rotateY(var(--preview-ry)); transform-style: preserve-3d; transition: transform .18s ease-out, box-shadow .28s ease; }
-    .project-preview::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(460px circle at var(--preview-shine-x) var(--preview-shine-y), rgba(255, 36, 66, .22), transparent 46%); opacity: .48; mix-blend-mode: screen; transition: opacity .28s ease; }
-    .project-preview::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; box-shadow: inset 0 1px rgba(255, 255, 255, .12), inset 0 -1px rgba(255, 255, 255, .04); }
-    .preview-animate { position: relative; z-index: 1; transform-origin: center bottom; }
-    .project-preview.is-switching .preview-animate { animation: detailSwap .42s cubic-bezier(.2, .8, .2, 1) both; }
-    .preview-media { position: relative; overflow: hidden; isolation: isolate; aspect-ratio: 16 / 10; border: 1px solid rgba(255, 255, 255, .08); border-radius: 20px; background: #1d1d20; box-shadow: 0 22px 58px rgba(0, 0, 0, .34); }
-    .preview-media::before { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgba(0, 0, 0, .02), rgba(0, 0, 0, .34)); }
-    .preview-media::after { content: ""; position: absolute; inset: -18% -55%; z-index: 3; pointer-events: none; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .22) 48%, transparent 62%); transform: translateX(-42%); animation: previewSweep 4.8s ease-in-out infinite; }
-    .preview-media img { width: 100%; height: 100%; display: block; object-fit: cover; transform: scale(1.035); animation: previewDrift 8s ease-in-out infinite; transition: filter .35s ease; }
-    .project-preview.is-switching .preview-media { animation: mediaSwap .42s cubic-bezier(.2, .8, .2, 1) both; }
-    .project-preview.is-switching .preview-content > * { animation: previewTextIn .38s cubic-bezier(.2, .8, .2, 1) both; }
-    .project-preview.is-switching .preview-content > :nth-child(2) { animation-delay: .04s; }
-    .project-preview.is-switching .preview-content > :nth-child(3) { animation-delay: .08s; }
-    .project-preview.is-switching .preview-content > :nth-child(4) { animation-delay: .12s; }
-    .project-preview.is-switching .preview-content > :nth-child(5) { animation-delay: .16s; }
-    .project-preview.is-switching .preview-content > :nth-child(6) { animation-delay: .2s; }
+    .project-preview { position: sticky; top: 76px; overflow: hidden; min-height: 640px; padding: 18px; border: 1px solid rgba(255, 255, 255, .08); border-radius: 24px; color: #f5f5f7; background: #121214; box-shadow: 0 30px 80px rgba(0, 0, 0, .18); }
+    .preview-animate { transform-origin: center bottom; }
+    .project-preview.is-switching .preview-animate { animation: detailSwap .34s cubic-bezier(.2, .8, .2, 1) both; }
+    .preview-media { overflow: hidden; aspect-ratio: 16 / 10; border: 1px solid rgba(255, 255, 255, .08); border-radius: 20px; background: #1d1d20; }
+    .preview-media img { width: 100%; height: 100%; display: block; object-fit: cover; transform: scale(1.01); transition: transform .35s ease; }
+    .project-preview:hover .preview-media img { transform: scale(1.035); }
     .preview-content { padding: 20px 4px 4px; }
     .preview-kicker { margin: 0 0 10px; color: #FF2442; font-size: 12px; font-weight: 900; letter-spacing: 0; }
     .preview-title { margin: 0; font-size: 36px; line-height: 1.06; font-weight: 880; }
@@ -385,10 +375,6 @@ HOME_TEMPLATE = """
     .preview-link { display: inline-flex; align-items: center; min-height: 40px; padding: 0 15px; border: 1px solid rgba(255, 36, 66, .45); border-radius: 10px; color: #fff; background: #FF2442; font-size: 14px; font-weight: 850; transition: transform .22s ease, background .22s ease; }
     .preview-link[hidden] { display: none; }
     @keyframes detailSwap { from { opacity: 0; transform: translateY(20px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    @keyframes mediaSwap { from { opacity: 0; transform: translateY(18px) scale(.982); filter: blur(8px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
-    @keyframes previewTextIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes previewDrift { 0%, 100% { transform: scale(1.035) translate3d(0, 0, 0); } 50% { transform: scale(1.07) translate3d(-1.4%, -1.2%, 0); } }
-    @keyframes previewSweep { 0%, 35% { opacity: 0; transform: translateX(-42%); } 48% { opacity: .7; } 72%, 100% { opacity: 0; transform: translateX(42%); } }
     .small { margin-top: 18px; color: var(--muted); font-size: 13px; font-weight: 800; }
     .resource-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 34px; }
     .resource { position: relative; overflow: hidden; isolation: isolate; min-height: 188px; padding: 22px; border: 1px solid rgba(245, 245, 247, .16); border-radius: 8px; background: rgba(255, 255, 255, .08); transition: transform .3s ease, border-color .3s ease, background .3s ease; }
@@ -411,7 +397,7 @@ HOME_TEMPLATE = """
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .ambient-light, .scroll-progress { display: none; }
-      .hero::before, .hero-media::after, .hero-media, .hero-media img, .hero-copy > *, .feature-card, .project-card, .project-preview, .project-preview::before, .preview-animate, .preview-media, .preview-media::after, .preview-media img, .preview-content > *, .resource, .status-item, .reveal { animation: none; transition: none; transform: none; filter: none; opacity: 1; }
+      .hero::before, .hero-media::after, .hero-media, .hero-media img, .hero-copy > *, .feature-card, .project-card, .resource, .status-item, .reveal { animation: none; transition: none; transform: none; filter: none; opacity: 1; }
     }
     @media (max-width: 980px) {
       .nav-inner { align-items: flex-start; flex-direction: column; padding: 13px 18px; }
@@ -750,17 +736,6 @@ HOME_TEMPLATE = """
             root.style.setProperty("--hero-ry", inside ? `${x * 4}deg` : "0deg");
           }
 
-          if (projectPreview) {
-            const rect = projectPreview.getBoundingClientRect();
-            const px = (event.clientX - rect.left) / rect.width;
-            const py = (event.clientY - rect.top) / rect.height;
-            const inside = px > -0.05 && px < 1.05 && py > -0.05 && py < 1.05;
-            projectPreview.style.setProperty("--preview-shine-x", `${Math.min(100, Math.max(0, px * 100))}%`);
-            projectPreview.style.setProperty("--preview-shine-y", `${Math.min(100, Math.max(0, py * 100))}%`);
-            projectPreview.style.setProperty("--preview-rx", inside ? `${(py - 0.5) * -3.2}deg` : "0deg");
-            projectPreview.style.setProperty("--preview-ry", inside ? `${(px - 0.5) * 4.2}deg` : "0deg");
-          }
-
           document.querySelectorAll(".feature-card, .project-card, .resource").forEach((card) => {
             const rect = card.getBoundingClientRect();
             const x = ((event.clientX - rect.left) / rect.width) * 100;
@@ -777,12 +752,6 @@ HOME_TEMPLATE = """
         root.style.setProperty("--hero-y", "0px");
         root.style.setProperty("--hero-rx", "0deg");
         root.style.setProperty("--hero-ry", "0deg");
-        if (projectPreview) {
-          projectPreview.style.setProperty("--preview-rx", "0deg");
-          projectPreview.style.setProperty("--preview-ry", "0deg");
-          projectPreview.style.setProperty("--preview-shine-x", "50%");
-          projectPreview.style.setProperty("--preview-shine-y", "34%");
-        }
       });
     })();
   </script>
