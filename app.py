@@ -2,21 +2,26 @@ from __future__ import annotations
 
 import os
 import sqlite3
-from datetime import timedelta
+import mimetypes
+from datetime import date, timedelta
 from pathlib import Path
 
-from flask import Flask, redirect, render_template_string, request, session, url_for
+from flask import Flask, redirect, render_template_string, request, send_from_directory, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 DATABASE_PATH = DATA_DIR / "profile.db"
+FRONTEND_DIST = BASE_DIR / "dist"
+FRONTEND_INDEX = FRONTEND_DIST / "index.html"
 
 ADMIN_USERNAME = os.getenv("PROFILE_ADMIN_USERNAME", "sososong")
 ADMIN_PASSWORD = os.getenv("PROFILE_ADMIN_PASSWORD", "")
 SECRET_KEY = os.getenv("PROFILE_SECRET_KEY", "profile-site-change-me")
 URL_PREFIX = "/me"
+
+mimetypes.add_type("image/webp", ".webp")
 
 
 def create_app() -> Flask:
@@ -43,23 +48,79 @@ def create_app() -> Flask:
     def root():
         return redirect(f"{URL_PREFIX}/")
 
+    @app.route("/profile")
+    @app.route("/profile/")
+    def public_profile():
+        response = app.make_response(
+            render_template_string(PUBLIC_PROFILE_TEMPLATE, base_url=request.host_url.rstrip("/"))
+        )
+        response.headers["Cache-Control"] = "public, max-age=300"
+        response.headers["X-Robots-Tag"] = "index, follow"
+        return response
+
+    @app.route("/profile-assets/<path:filename>")
+    def profile_assets(filename):
+        response = send_from_directory(BASE_DIR / "static", filename)
+        response.headers["Cache-Control"] = "public, max-age=2592000, immutable"
+        return response
+
+    @app.route("/robots.txt")
+    def robots_txt():
+        base_url = request.host_url.rstrip("/")
+        body = "\n".join(
+            [
+                "User-agent: *",
+                "Allow: /profile",
+                "Allow: /sitemap.xml",
+                "Disallow: /me",
+                f"Sitemap: {base_url}/sitemap.xml",
+                "",
+            ]
+        )
+        response = app.response_class(body, mimetype="text/plain")
+        response.headers["Cache-Control"] = "public, max-age=3600"
+        return response
+
+    @app.route("/sitemap.xml")
+    def sitemap_xml():
+        base_url = request.host_url.rstrip("/")
+        body = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{base_url}/profile</loc>
+    <lastmod>{date.today().isoformat()}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
+"""
+        response = app.response_class(body, mimetype="application/xml")
+        response.headers["Cache-Control"] = "public, max-age=3600"
+        return response
+
     @app.route(f"{URL_PREFIX}/")
     def home():
         if not is_logged_in():
             return redirect(f"{URL_PREFIX}/login?next={URL_PREFIX}/")
-        return render_template_string(HOME_TEMPLATE, username=session.get("username", ""))
+        return frontend_index()
+
+    @app.route(f"{URL_PREFIX}/assets/<path:filename>")
+    def frontend_assets(filename):
+        if not is_logged_in():
+            return redirect(f"{URL_PREFIX}/login?next={URL_PREFIX}/")
+        return send_from_directory(FRONTEND_DIST / "assets", filename)
 
     @app.route(f"{URL_PREFIX}/projects/yikougege")
     def yikougege_project():
         if not is_logged_in():
             return redirect(f"{URL_PREFIX}/login?next={URL_PREFIX}/projects/yikougege")
-        return render_template_string(YIKOU_TEMPLATE, username=session.get("username", ""))
+        return frontend_index()
 
     @app.route(f"{URL_PREFIX}/projects/kefumei")
     def kefumei_project():
         if not is_logged_in():
             return redirect(f"{URL_PREFIX}/login?next={URL_PREFIX}/projects/kefumei")
-        return render_template_string(KEFUMEI_TEMPLATE, username=session.get("username", ""))
+        return frontend_index()
 
     @app.route(f"{URL_PREFIX}/login", methods=["GET", "POST"])
     def login():
@@ -90,7 +151,19 @@ def create_app() -> Flask:
         session.clear()
         return redirect(f"{URL_PREFIX}/login")
 
+    @app.route(f"{URL_PREFIX}/<path:frontend_path>")
+    def frontend_route(frontend_path: str):
+        if not is_logged_in():
+            return redirect(f"{URL_PREFIX}/login?next={request.path}")
+        return frontend_index()
+
     return app
+
+
+def frontend_index():
+    if FRONTEND_INDEX.exists():
+        return send_from_directory(FRONTEND_DIST, "index.html")
+    return render_template_string(HOME_TEMPLATE, username=session.get("username", ""))
 
 
 def get_conn() -> sqlite3.Connection:
@@ -170,6 +243,478 @@ def client_ip() -> str:
     if forwarded:
         return forwarded.split(",", 1)[0].strip()
     return request.remote_addr or ""
+
+
+PUBLIC_PROFILE_TEMPLATE = """
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>何坚松 Nelson｜AI × Consumer Product</title>
+  <meta name="description" content="何坚松 Nelson｜AI + C端消费者产品负责人 / 产品总监公开主页，聚焦 AI 消费者产品、产品企划、GTM 与商品经营。" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="{{ base_url }}/profile" />
+  <meta property="og:title" content="何坚松 Nelson｜AI × Consumer Product" />
+  <meta property="og:description" content="面向企业高管和投资者的公开能力展示：AI 消费者产品、产品企划、GTM、商品经营与品牌增长。" />
+  <meta property="og:type" content="profile" />
+  <meta property="og:url" content="{{ base_url }}/profile" />
+  <meta property="og:image" content="{{ base_url }}/profile-assets/nelson-hero-character.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "何坚松",
+    "alternateName": "Kinsong Ho",
+    "url": "{{ base_url }}/profile",
+    "email": ["mailto:kinsongho@qq.com", "mailto:sososong28@gmail.com"],
+    "jobTitle": "AI 与 C 端消费者产品负责人 / 产品总监",
+    "knowsAbout": ["AI 消费者产品", "C 端 AI 应用", "智能硬件", "产品企划", "GTM", "商品经营", "消费者洞察", "品牌增长"]
+  }
+  </script>
+  <style>
+    :root {
+      --brand-ink: #0c0c0c;
+      --brand-ink-raised: #171615;
+      --brand-paper: #f4f1ea;
+      --brand-paper-raised: #fffdf8;
+      --brand-signal: #ff2442;
+      --brand-text-dark: #f4f1ea;
+      --brand-muted-dark: rgba(244, 241, 234, .66);
+      --brand-text-light: #171615;
+      --brand-muted-light: #625e57;
+      --brand-line-dark: rgba(244, 241, 234, .14);
+      --brand-line-light: rgba(23, 22, 21, .12);
+      --radius-control: 12px;
+      --radius-card: 16px;
+      --radius-media: 20px;
+      --section-space: 96px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--brand-text-dark); background: var(--brand-ink); font-family: "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif; line-height: 1.65; overflow-x: hidden; }
+    h1, h2, h3, p { text-wrap: pretty; }
+    a { color: inherit; text-decoration: none; }
+    .page { min-height: 100vh; }
+    .nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px clamp(20px, 5vw, 72px); background: rgba(12, 12, 12, .78); border-bottom: 1px solid rgba(255, 255, 255, .08); backdrop-filter: blur(18px); }
+    .brand { display: inline-flex; gap: 5px; font-weight: 900; letter-spacing: .02em; }
+    .nav-links { display: flex; align-items: center; gap: 16px; font-size: 14px; color: rgba(255, 255, 255, .64); }
+    .nav-links a:hover { color: #fff; }
+    .login-link { border: 1px solid rgba(255, 255, 255, .16); border-radius: 999px; padding: 8px 13px; color: rgba(255, 255, 255, .84); background: rgba(255, 255, 255, .04); }
+    .mobile-menu { display: none; }
+    .hero { position: relative; display: grid; grid-template-columns: minmax(0, .95fr) minmax(360px, .78fr); gap: clamp(36px, 5vw, 72px); align-items: center; min-height: calc(100vh - 74px); padding: clamp(48px, 8vw, 96px) max(clamp(20px, 6vw, 88px), calc((100vw - 1280px) / 2)) 42px; border-bottom: 1px solid rgba(255, 255, 255, .08); background: linear-gradient(115deg, #0c0c0c 0%, #15120f 48%, #0c0c0c 100%); }
+    .hero::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); }
+    .eyebrow { display: inline-flex; margin: 0 0 22px; border: 1px solid rgba(255, 255, 255, .1); border-radius: 999px; background: rgba(255, 255, 255, .04); padding: 8px 14px; color: rgba(255, 255, 255, .64); font-size: 12px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }
+    .hero-name { max-width: 880px; margin: 0; color: var(--brand-paper); font-family: "Arial Black", "Arial Narrow", Arial, sans-serif; font-size: clamp(76px, 13vw, 188px); line-height: .82; letter-spacing: -.045em; text-transform: uppercase; font-weight: 900; }
+    .hero-chinese { margin: 22px 0 0; font-size: clamp(38px, 6vw, 88px); line-height: .92; letter-spacing: 0; color: #fff; font-weight: 850; }
+    .hero-copy { max-width: 760px; margin: 30px 0 0; color: rgba(255, 255, 255, .72); font-size: clamp(18px, 2.1vw, 24px); font-weight: 650; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border-radius: var(--radius-control); border: 1px solid rgba(255, 255, 255, .14); background: var(--brand-signal); color: #fff; font-weight: 800; }
+    .button.secondary { background: transparent; color: rgba(255,255,255,.82); }
+    .hero-text-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: rgba(255,255,255,.72); font-weight: 700; }
+    .hero-text-link::after { content: "↗"; margin-left: 7px; color: var(--brand-signal); }
+    .hero-text-link:hover { color: #fff; }
+    .secondary-actions { margin-top: 12px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; color: rgba(255,255,255,.62); font-size: 13px; font-weight: 700; }
+    .hero-meta span { border: 1px solid rgba(255,255,255,.1); border-radius: 999px; background: rgba(255,255,255,.035); padding: 7px 10px; }
+    .focus-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; max-width: 620px; }
+    .focus-row span { border-radius: 999px; background: rgba(255,36,66,.14); color: rgba(255,255,255,.82); padding: 7px 10px; font-size: 12px; font-weight: 800; }
+    .visual { position: relative; min-height: 620px; border-left: 1px solid rgba(255, 255, 255, .08); display: grid; align-items: end; padding-left: clamp(18px, 4vw, 44px); }
+    .visual::before { content: ""; position: absolute; inset: 12% 4% 2%; border-radius: 999px; background: radial-gradient(circle at 50% 42%, rgba(255, 36, 66, .18), rgba(255,255,255,.06) 38%, transparent 68%); filter: blur(30px); }
+    .visual img { position: relative; z-index: 2; width: min(100%, 460px); max-height: 640px; object-fit: contain; filter: drop-shadow(0 34px 70px rgba(0, 0, 0, .42)); }
+    .signal { position: absolute; z-index: 3; right: 0; top: 28px; display: grid; gap: 10px; width: min(270px, 74%); }
+    .signal span { display: block; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, .1); border-radius: 12px; background: rgba(17, 17, 17, .78); color: rgba(255,255,255,.82); font-size: 13px; font-weight: 800; backdrop-filter: blur(12px); }
+    .metrics { position: absolute; left: clamp(18px, 4vw, 44px); right: 0; bottom: 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border: 1px solid rgba(255, 255, 255, .08); border-radius: 16px; background: rgba(17, 17, 17, .86); padding: 16px; backdrop-filter: blur(14px); }
+    .metric { text-align: center; }
+    .metric small { display: block; color: rgba(255, 255, 255, .46); font-size: 12px; font-weight: 800; }
+    .metric strong { display: block; margin-top: 4px; color: #fff; font-size: clamp(18px, 2vw, 26px); line-height: 1; }
+    section { padding: var(--section-space) clamp(20px, 6vw, 88px); background: var(--brand-ink); }
+    .section-inner { max-width: 1280px; margin: 0 auto; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+    h2 { margin: 0; font-size: clamp(28px, 4vw, 54px); line-height: 1.05; }
+    .section-note { max-width: 520px; margin: 0; color: rgba(255, 255, 255, .58); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .results-section { background: #0c0c0c; color: #fff; }
+    .result-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--brand-line-dark); border-radius: var(--radius-media); overflow: hidden; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.014)); }
+    .result-card { min-height: 190px; padding: 30px; border-right: 1px solid rgba(255,255,255,.1); display: flex; flex-direction: column; justify-content: space-between; }
+    .result-card:last-child { border-right: 0; }
+    .result-card small { color: rgba(255,255,255,.42); font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .result-card strong { color: #ff2442; font-size: clamp(38px, 4vw, 56px); line-height: 1; letter-spacing: 0; }
+    .result-card p { margin: 14px 0 0; color: rgba(255,255,255,.68); font-size: 14px; }
+    .about-section { background: var(--brand-paper); color: var(--brand-text-light); }
+    .about-section .eyebrow { border-color: rgba(17,17,17,.08); background: rgba(17,17,17,.04); color: #ff2442; }
+    .about-title { max-width: 920px; margin: 0; font-size: clamp(48px, 7vw, 108px); line-height: .9; letter-spacing: 0; font-weight: 1000; }
+    .about-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 46px; }
+    .about-card { min-height: 260px; border: 1px solid var(--brand-line-light); border-radius: var(--radius-card); background: var(--brand-paper-raised); padding: 28px; }
+    .about-card small { color: rgba(17,17,17,.42); font-size: 12px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }
+    .about-card strong { display: block; margin-top: 32px; font-size: clamp(24px, 3vw, 34px); line-height: 1.05; letter-spacing: 0; }
+    .about-card p { margin: 20px 0 0; color: rgba(17,17,17,.62); }
+    .timeline-section, .cap-section { background: #0c0c0c; color: #fff; }
+    .timeline-layout { margin-top: 46px; border-top: 1px solid rgba(255,255,255,.16); }
+    .timeline-list { display: grid; }
+    .timeline-card { display: grid; grid-template-columns: 110px minmax(220px, .8fr) minmax(0, 1.45fr); gap: 26px; padding: 28px 0; border-bottom: 1px solid rgba(255,255,255,.12); background: transparent; }
+    .timeline-card small { display: block; color: #ff2442; font-weight: 900; letter-spacing: .08em; }
+    .timeline-card strong { display: block; color: #fff; font-size: clamp(22px, 2.4vw, 32px); line-height: 1.12; }
+    .timeline-card p { margin: 0; color: rgba(255,255,255,.64); line-height: 1.8; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .info-pill { display: inline-flex; border: 1px solid rgba(255,255,255,.1); border-radius: 999px; background: rgba(255,255,255,.04); padding: 8px 14px; color: rgba(255,255,255,.68); font-size: 14px; font-weight: 700; }
+    .detail-title { margin: 54px 0 0; font-size: clamp(48px, 6vw, 86px); line-height: .92; letter-spacing: 0; font-weight: 1000; }
+    .detail-copy { max-width: 720px; margin: 28px 0 0; color: rgba(255,255,255,.68); font-size: 18px; line-height: 1.9; }
+    .cap-head { display: grid; grid-template-columns: .82fr 1.18fr; gap: 28px; align-items: end; border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 40px; }
+    .cap-grid { display: grid; margin-top: 40px; border-top: 1px solid rgba(255,255,255,.16); }
+    .cap-card { display: grid; grid-template-columns: 110px minmax(220px, .8fr) minmax(0, 1.45fr) auto; gap: 26px; align-items: start; padding: 28px 0; border: 0; border-bottom: 1px solid rgba(255,255,255,.12); border-radius: 0; background: transparent; }
+    .cap-index { color: #ff2442; font-size: 18px; line-height: 1.2; font-weight: 1000; letter-spacing: .08em; }
+    .cap-card strong { display: block; font-size: clamp(24px, 2.5vw, 34px); line-height: 1.1; letter-spacing: 0; }
+    .cap-card p { margin: 0; color: rgba(255,255,255,.62); line-height: 1.85; }
+    .cap-card .tag-row { margin: 0; justify-content: flex-end; max-width: 250px; }
+    .projects { background: #f4f1ea; color: #111; }
+    .project-layout { display: grid; gap: 18px; margin-top: 46px; }
+    .project-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid rgba(17,17,17,.14); }
+    .project-tab { cursor: pointer; text-align: left; font: inherit; color: inherit; border: 0; border-bottom: 1px solid rgba(17,17,17,.14); border-radius: 0; background: transparent; padding: 20px 18px 20px 0; transition: color .2s ease, background .2s ease; }
+    .project-tab + .project-tab { padding-left: 18px; border-left: 1px solid rgba(17,17,17,.14); }
+    .project-tab:hover, .project-tab.is-active { color: #ff2442; box-shadow: none; transform: none; }
+    .project-tab .num { color: #ff2442; font-size: 15px; font-weight: 1000; line-height: 1; }
+    .project-tab strong { display: block; margin-top: 10px; font-size: 18px; line-height: 1.25; }
+    .project-feature { order: -1; overflow: hidden; border: 1px solid var(--brand-line-light); border-radius: var(--radius-media); background: var(--brand-paper-raised); box-shadow: 0 24px 60px rgba(17,17,17,.12); }
+    .project-feature-top { position: relative; min-height: 320px; background: #101010; color: #fff; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+    .project-feature-top::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(16,16,16,.94) 0%, rgba(16,16,16,.7) 38%, rgba(16,16,16,.12) 100%); z-index: 1; pointer-events: none; }
+    .project-feature-top img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(.95) contrast(1.04); }
+    .project-feature-top > *:not(img) { position: relative; z-index: 2; }
+    .project-feature-top .num { color: #ff2442; font-size: 48px; font-weight: 1000; line-height: 1; }
+    .project-feature-kicker { max-width: 520px; margin: 0; color: rgba(255,255,255,.72); font-weight: 800; }
+    .project-feature-body { padding: 28px; }
+    .project-feature h3 { margin: 18px 0 0; font-size: clamp(38px, 5vw, 72px); line-height: .95; letter-spacing: 0; }
+    .project-feature p { color: rgba(17,17,17,.62); line-height: 1.9; }
+    .project-hint { display: inline-flex; margin-top: 18px; color: rgba(17,17,17,.42); font-size: 13px; font-weight: 800; }
+    a:focus-visible, button:focus-visible { outline: 3px solid #ff2442; outline-offset: 4px; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    .card { min-height: 250px; padding: 24px; border: 1px solid rgba(255, 255, 255, .1); border-radius: 8px; background: rgba(255, 255, 255, .05); }
+    .card strong { display: block; margin-bottom: 12px; font-size: 22px; line-height: 1.15; }
+    .card p { margin: 0; color: rgba(255, 255, 255, .66); }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .tag { padding: 6px 9px; border-radius: 999px; background: rgba(255, 255, 255, .1); color: rgba(255,255,255,.82); font-size: 12px; font-weight: 800; }
+    #method { background: #f4f1ea; color: #111; }
+    .projects .section-note, #method .section-note, .projects .card p, #method .card p { color: #56534d; }
+    .projects .card, #method .card { background: rgba(255, 255, 255, .68); border-color: rgba(17, 17, 17, .1); }
+    .projects .tag { background: #e4ddd1; color: #3f3328; }
+    .contact { display: grid; grid-template-columns: minmax(0, .86fr) minmax(280px, 1fr); gap: 28px; align-items: stretch; }
+    .contact-panel { padding: 28px; border: 1px solid rgba(255, 255, 255, .1); border-radius: 8px; background: rgba(255, 255, 255, .05); }
+    .contact-panel a, .contact-panel span { display: block; font-size: clamp(20px, 3vw, 34px); font-weight: 900; line-height: 1.25; word-break: break-word; }
+    .disclaimer { margin-top: 18px; color: rgba(255,255,255,.56); font-size: 14px; }
+    footer { padding: 28px clamp(20px, 6vw, 88px) 44px; color: rgba(255,255,255,.42); background: #0c0c0c; font-size: 13px; }
+    @media (max-width: 900px) {
+      .nav { align-items: flex-start; flex-direction: column; }
+      .nav-links { width: 100%; overflow-x: auto; padding-bottom: 2px; }
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .visual { min-height: 540px; border-left: 0; border-top: 1px solid rgba(255, 255, 255, .08); padding: 22px 0 0; }
+      .signal { position: static; width: 100%; margin-bottom: 10px; }
+      .signal { display: none; }
+      .metrics { left: 0; bottom: 8px; }
+      .section-head, .contact { display: block; }
+      .section-note, .contact-panel + .contact-panel { margin-top: 16px; }
+      .grid, .about-cards, .timeline-layout, .cap-head, .cap-grid, .project-layout, .result-grid { grid-template-columns: 1fr; }
+      .result-card { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+      .result-card:last-child { border-bottom: 0; }
+      .timeline-detail { min-height: auto; }
+      .card { min-height: auto; }
+    }
+    @media (max-width: 1180px) {
+      .signal { display: none; }
+      .cap-card { grid-template-columns: 88px minmax(0, 1fr); gap: 12px 24px; }
+      .cap-index { grid-column: 1; grid-row: 1 / span 3; }
+      .cap-card strong, .cap-card p, .cap-card .tag-row { grid-column: 2; }
+      .cap-card .tag-row { justify-content: flex-start; max-width: none; }
+    }
+    @media (max-width: 640px) {
+      body { background: #f6f6f4; }
+      .page { width: calc(100% - 18px); margin: 8px auto 18px; border-radius: 24px; background: #0c0c0c; }
+      .nav { flex-direction: row; align-items: center; }
+      .nav { position: absolute; left: 0; right: 0; top: 0; padding: 26px 24px 10px; border-bottom: 0; background: transparent; }
+      .brand { display: grid; gap: 1px; color: #fff; font-size: 21px; line-height: 1; letter-spacing: .14em; text-transform: uppercase; }
+      .brand span:last-child { font-size: 13px; letter-spacing: .32em; }
+      .nav-links { display: none; }
+      .mobile-menu { display: inline-flex; align-items: center; justify-content: center; min-width: 94px; height: 44px; padding: 0 14px; border: 1px solid rgba(255,255,255,.28); border-radius: var(--radius-control); background: rgba(0,0,0,.18); color: #fff; font-size: 13px; font-weight: 800; }
+      .hero { display: block; min-height: clamp(700px, 188vw, 740px); padding: 116px 24px 30px; border-radius: 24px 24px 0 0; overflow: hidden; }
+      .hero > div:first-child { position: relative; z-index: 4; max-width: min(270px, 72vw); }
+      .eyebrow { margin-bottom: 20px; border: 0; background: transparent; padding: 0; color: #ff2442; font-size: 12px; letter-spacing: .05em; }
+      .hero-name { font-size: clamp(58px, 17vw, 74px); line-height: .88; }
+      .hero-chinese { margin-top: 6px; font-size: 44px; line-height: 1; }
+      .hero-copy { margin-top: 22px; color: rgba(255,255,255,.78); font-size: 16px; line-height: 1.85; }
+      .hero-actions { display: flex; align-items: center; flex-wrap: wrap; width: min(260px, 72vw); gap: 10px 16px; margin-top: 24px; }
+      .secondary-actions { display: none; }
+      .hero-meta, .focus-row { display: none; }
+      .button { min-height: 48px; justify-content: center; }
+      .hero-text-link { min-height: 36px; }
+      .button.secondary { background: rgba(12,12,12,.42); border-color: rgba(255,255,255,.42); }
+      .visual { position: absolute; inset: 106px -84px auto 108px; height: 680px; min-height: 0; border-top: 0; padding: 0; }
+      .visual::before { inset: 8% 0 0; }
+      .visual img { width: min(100%, 430px); max-height: 620px; transform: translateY(74px); }
+      .metrics { display: none; }
+      .metric small { font-size: 9px; letter-spacing: .12em; }
+      .metric strong { font-size: 14px; }
+      .about-section { margin-top: -1px; border-radius: 24px 24px 0 0; padding: 44px 24px 48px; }
+      .about-title { max-width: 300px; font-size: 42px; line-height: 1.04; }
+      .about-cards { margin-top: 28px; }
+      .about-card { min-height: auto; border-radius: 18px; padding: 22px; }
+      .about-card strong { margin-top: 18px; font-size: 23px; }
+      .about-card p { margin-top: 12px; line-height: 1.75; }
+      section { padding: 46px 24px; }
+      h2 { font-size: 34px; line-height: 1.06; }
+      .section-head { margin-bottom: 22px; }
+      .timeline-layout, .project-layout { margin-top: 26px; }
+      .timeline-card, .cap-card { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 20px 0; }
+      .cap-card .tag-row { justify-content: flex-start; max-width: none; }
+      .cap-grid { margin-top: 24px; }
+      .project-list { grid-template-columns: 1fr; }
+      .project-tab, .project-tab + .project-tab { padding: 16px 0; border-left: 0; }
+      .project-feature { border-radius: 20px; }
+      .project-feature-top { min-height: 230px; padding: 22px; }
+      .project-feature-body { padding: 22px; }
+      .project-feature h3 { font-size: 34px; line-height: 1.05; }
+      .contact { padding-top: 48px; padding-bottom: 56px; }
+      .contact-panel { border-radius: 20px; padding: 20px; }
+      .contact-panel a { font-size: 18px; }
+    }
+    @media (max-width: 390px) {
+      .page { width: calc(100% - 12px); margin-top: 6px; border-radius: 22px; }
+      .nav { padding-left: 20px; padding-right: 20px; }
+      .hero { padding-left: 20px; padding-right: 20px; }
+      .hero > div:first-child { max-width: 246px; }
+      .hero-name { font-size: clamp(54px, 16vw, 66px); }
+      .hero-chinese { font-size: 39px; }
+      .hero-copy { font-size: 15px; line-height: 1.78; }
+      .visual { inset: 132px -118px auto 86px; }
+      .metrics { left: -72px; right: 112px; bottom: 104px; }
+      section { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="nav" aria-label="公开资料导航">
+      <a class="brand" href="/profile"><span>Nelson</span><span>Archive</span></a>
+      <div class="nav-links">
+        <a href="#results">关键结果</a>
+        <a href="#capabilities">能力</a>
+        <a href="#projects">项目</a>
+        <a href="#timeline">经历</a>
+        <a href="#contact">联系</a>
+        <a class="login-link" href="/me/login">私密案例登录</a>
+      </div>
+      <a class="mobile-menu" href="/me/login" aria-label="进入私密案例登录">案例登录</a>
+    </nav>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">AI + C 端消费者产品负责人</p>
+        <h1 class="hero-name">Nelson</h1>
+        <h2 class="hero-chinese">何坚松</h2>
+        <p class="hero-copy">把 AI 能力、消费者需求与商品经营，做成可落地的产品增长。9 年大健康、快消、新消费与品牌出海经验，主导或深度参与孵化产品累计销售规模 11.2 亿+。</p>
+        <div class="hero-actions">
+          <a class="button" href="#projects">查看代表项目</a>
+          <a class="hero-text-link" href="#timeline">职业轨迹</a>
+          <a class="hero-text-link" href="#contact">联系</a>
+        </div>
+        <div class="hero-meta">
+          <span>北京</span>
+          <span>9 年产品与品牌经验</span>
+          <span>AI 消费者产品负责人</span>
+        </div>
+        <div class="focus-row">
+          <span>AI 消费者产品</span>
+          <span>产品企划</span>
+          <span>商品经营</span>
+          <span>GTM</span>
+        </div>
+      </div>
+      <aside class="visual" aria-label="个人能力视觉展示">
+        <div class="signal">
+          <span>AI PRODUCT</span>
+          <span>CONSUMER</span>
+          <span>GTM</span>
+        </div>
+        <img src="/profile-assets/nelson-hero-character.webp" alt="何坚松个人网站视觉形象" fetchpriority="high" decoding="async" />
+        <div class="metrics" aria-label="经历路径">
+          <div class="metric"><small>产品</small><strong>AI</strong></div>
+          <div class="metric"><small>场景</small><strong>C端</strong></div>
+          <div class="metric"><small>经营</small><strong>GTM</strong></div>
+        </div>
+      </aside>
+    </header>
+    <section class="results-section" id="results" aria-labelledby="results-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Selected Results</p>
+            <h2 id="results-title">关键结果</h2>
+          </div>
+          <p class="section-note">用业务规模、品牌增长和 AI 工具落地，呈现从产品定义到持续经营的完整能力。</p>
+        </div>
+        <div class="result-grid">
+          <article class="result-card"><small>01 / SCALE</small><div><strong>11.2亿+</strong><p>主导或深度参与孵化产品累计销售规模</p></div></article>
+          <article class="result-card"><small>02 / BRAND</small><div><strong>1.4亿元</strong><p>益口葛葛 3.5 年累计销售额</p></div></article>
+          <article class="result-card"><small>03 / MARKET</small><div><strong>10亿港元</strong><p>泰安品牌年度销售规模</p></div></article>
+          <article class="result-card"><small>04 / AI BUILD</small><div><strong>10+</strong><p>AI Agent、自动化工作流与数据工具完成可运行原型或实际部署</p></div></article>
+        </div>
+      </div>
+    </section>
+    <section class="about-section" id="about" aria-labelledby="about-title">
+      <div class="section-inner">
+        <p class="eyebrow">About Nelson</p>
+        <h2 class="about-title" id="about-title">让 AI 产品真正进入消费者场景与经营结果。</h2>
+        <div class="about-cards">
+          <article class="about-card"><small>用户</small><strong>真实需求，而不是技术想象。</strong><p>从问卷、评论、市场变化与竞品信号中识别问题，形成场景排序、产品假设和验证清单。</p></article>
+          <article class="about-card"><small>产品</small><strong>从概念走向可验证方案。</strong><p>将大模型、Agent、知识库、智能硬件与内容能力转译为产品功能、交互体验和阶段路线图。</p></article>
+          <article class="about-card"><small>经营</small><strong>从上市走向持续增长。</strong><p>连接 SKU、价格带、渠道货盘、内容表达、销售结构、库存健康与 ROI 复盘。</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="timeline-section" id="timeline" aria-labelledby="timeline-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Timeline</p>
+            <h2 id="timeline-title">经历时间线</h2>
+          </div>
+          <p class="section-note">仅保留公司、岗位和职责定位，完整项目明细在私人档案中查看。</p>
+        </div>
+        <div class="timeline-layout">
+          <div class="timeline-list">
+            <article class="timeline-card"><small>01 / 2025—NOW</small><strong>消费品品牌<br>北京</strong><p>产品企划总监，负责 AI 消费者产品、商品管理与 GTM 协同，把用户场景、产品结构与经营结果放在同一条链路推进。</p></article>
+            <article class="timeline-card"><small>02 / 2022—2025</small><strong>深圳市味康嘉品健康科技<br>深圳</strong><p>产品总监，负责消费品牌孵化、产品创新、渠道增长与团队管理，建立从新品定义到上市复盘的协同机制。</p></article>
+            <article class="timeline-card"><small>03 / 2017—2022</small><strong>香港科朗集团—中科食品<br>香港</strong><p>品牌经理，负责品牌出海、本地化、渠道运营与消费者运营，连接产品表达与区域市场承接。</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="cap-section" id="capabilities" aria-labelledby="capabilities-title">
+      <div class="section-inner">
+        <div class="cap-head">
+          <div>
+            <p class="eyebrow">Capability Map</p>
+            <h2 id="capabilities-title">能力板块</h2>
+          </div>
+          <p class="section-note">从机会识别、产品定义到上市经营，让每一次产品判断都有证据、有路径、有结果。</p>
+        </div>
+        <div class="cap-grid">
+          <article class="cap-card"><span class="cap-index">01</span><strong>AI 消费者产品规划</strong><p>围绕真实用户场景，将大模型、Agent、知识库、智能硬件与内容能力转化为明确的产品功能、交互体验、验证指标和阶段路线图。</p><div class="tag-row"><span class="tag">AI应用</span><span class="tag">Agent工作流</span><span class="tag">智能硬件</span><span class="tag">产品路线图</span></div></article>
+          <article class="cap-card"><span class="cap-index">02</span><strong>消费者洞察与产品定义</strong><p>将问卷、用户评论、市场趋势与竞品信息转化为痛点分类、场景排序、需求优先级和验证清单，让产品决策建立在连续证据上。</p><div class="tag-row"><span class="tag">消费者洞察</span><span class="tag">需求管理</span><span class="tag">产品定义</span><span class="tag">用户验证</span></div></article>
+          <article class="cap-card"><span class="cap-index">03</span><strong>商品企划与 GTM</strong><p>从品类机会、产品分级、SKU 组合、价格带和渠道货盘出发，连接产品开发、品牌表达、内容验证、渠道承接与销售复盘。</p><div class="tag-row"><span class="tag">商品企划</span><span class="tag">SKU管理</span><span class="tag">渠道货盘</span><span class="tag">GTM</span></div></article>
+          <article class="cap-card"><span class="cap-index">04</span><strong>经营分析与组织协同</strong><p>围绕销售结构、库存健康、利润和 ROI 复盘经营表现，并推动研发、供应链、品牌、渠道、合规和算法团队围绕同一目标协作。</p><div class="tag-row"><span class="tag">经营分析</span><span class="tag">ROI拆解</span><span class="tag">跨部门协同</span><span class="tag">团队管理</span></div></article>
+        </div>
+      </div>
+    </section>
+    <section class="projects" id="projects" aria-labelledby="projects-title">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Project Archive</p>
+            <h2 id="projects-title">项目作品</h2>
+          </div>
+          <p class="section-note">开放页只呈现方向、关键动作与业务结果；完整过程和证明材料进入私人档案。</p>
+        </div>
+        <div class="project-layout">
+          <div class="project-list" role="tablist" aria-label="公开项目切换">
+            <button class="project-tab is-active" type="button" role="tab" aria-selected="true" data-project="jikex001"><span class="num">01</span><strong>AI 消费者产品线 0—1 搭建</strong><div class="tag-row"><span class="tag">AI应用</span><span class="tag">智能硬件</span><span class="tag">产品路线图</span></div></button>
+            <button class="project-tab" type="button" role="tab" aria-selected="false" data-project="agentstack"><span class="num">02</span><strong>AI Agent 与产品决策工具体系</strong><div class="tag-row"><span class="tag">Agent工作流</span><span class="tag">数据工具</span><span class="tag">业务落地</span></div></button>
+            <button class="project-tab" type="button" role="tab" aria-selected="false" data-project="yikougege"><span class="num">03</span><strong>益口葛葛功能性提神食品</strong><div class="tag-row"><span class="tag">新品类定义</span><span class="tag">消费品牌</span><span class="tag">GTM增长</span></div></button>
+          </div>
+          <article class="project-feature" aria-live="polite">
+            <div class="project-feature-top">
+              <img id="project-image" src="/profile-assets/projects/jikex001/assets/product-house.webp" alt="AI 消费者产品线 0—1 搭建项目图" loading="lazy" decoding="async" />
+              <span class="num" id="project-index">01</span>
+              <p class="project-feature-kicker" id="project-kicker">AI CONSUMER PRODUCT / 从短期试点到长期软硬件闭环。</p>
+            </div>
+            <div class="project-feature-body">
+              <div class="pill-row" id="project-tags"><span class="tag">AI应用</span><span class="tag">智能硬件</span><span class="tag">产品路线图</span></div>
+              <h3 id="project-title">AI 消费者产品线 0—1 搭建</h3>
+              <p id="project-copy">面向陪伴与亲密关系消费场景，从 0 规划 AI 消费者产品方向，建立“短期 AI 应用试点—中期数据能力沉淀—长期软硬件闭环”的阶段路线图。</p>
+              <span class="project-hint">公开页仅支持切换浏览，不开放项目详情入口。</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section id="method" aria-labelledby="method-title">
+      <div class="section-head">
+        <h2 id="method-title">从真实需求出发，让每一次产品判断都有证据、有路径、有结果。</h2>
+        <p class="section-note">识别机会、定义产品、推动落地、持续经营，把模糊机会推进成团队能执行、市场能验证、业务能复盘的产品系统。</p>
+      </div>
+    </section>
+    <section class="contact" id="contact" aria-labelledby="contact-title">
+      <div>
+        <p class="eyebrow">Contact</p>
+        <h2 id="contact-title">联系何坚松</h2>
+        <p class="disclaimer">适合交流：C 端 AI 应用、AI 陪伴产品、智能硬件、消费者洞察、商品企划、产品经营与 GTM。完整案例和证明材料在私密站内查看。</p>
+      </div>
+      <div class="contact-panel">
+        <a href="mailto:kinsongho@qq.com">kinsongho@qq.com</a>
+        <a href="mailto:sososong28@gmail.com">sososong28@gmail.com</a>
+        <span>北京</span>
+      </div>
+    </section>
+  </main>
+  <footer>© 2026 何坚松。公开页内容已做脱敏处理。</footer>
+  <script>
+    const publicProjects = {
+      jikex001: {
+        index: "01",
+        image: "/profile-assets/projects/jikex001/assets/product-house.webp",
+        alt: "AI 消费者产品线 0—1 搭建项目图",
+        kicker: "AI CONSUMER PRODUCT / 从短期试点到长期软硬件闭环。",
+        tags: ["AI应用", "智能硬件", "产品路线图"],
+        title: "AI 消费者产品线 0—1 搭建",
+        copy: "面向陪伴与亲密关系消费场景，从 0 规划 AI 消费者产品方向，建立“短期 AI 应用试点—中期数据能力沉淀—长期软硬件闭环”的阶段路线图。"
+      },
+      agentstack: {
+        index: "02",
+        image: "/profile-assets/projects/jikex001/assets/consumer-survey-painpoints.png",
+        alt: "AI Agent 与产品决策工具体系数据图",
+        kicker: "AI WORKFLOW / 从一次性分析到持续更新的业务工作流。",
+        tags: ["Agent工作流", "数据工具", "业务落地"],
+        title: "AI Agent 与产品决策工具体系",
+        copy: "围绕产品决策、消费者洞察、竞品监控、知识检索、经营复盘和内容生产，完成 10+ 个 AI Agent、自动化工作流与数据工具的可运行原型或部署；累计采集与处理 3 万+ 条原始市场与竞品信息。"
+      },
+      yikougege: {
+        index: "03",
+        image: "/profile-assets/projects/yikougege/assets/product-family.jpg",
+        alt: "益口葛葛功能性提神食品产品组合图",
+        kicker: "FUNCTIONAL FOOD / 从新品类定义到渠道与内容协同增长。",
+        tags: ["新品类定义", "消费品牌", "GTM增长"],
+        title: "益口葛葛功能性提神食品",
+        copy: "从加班、熬夜、考试等高频场景切入，完成新品类定义、产品迭代、品牌资产、渠道铺设和复购机制建设；3.5 年累计销售 1.4 亿元，峰值月销 2,000 万。"
+      }
+    };
+
+    const projectTabs = document.querySelectorAll(".project-tab[data-project]");
+    const projectImage = document.getElementById("project-image");
+    const projectIndex = document.getElementById("project-index");
+    const projectKicker = document.getElementById("project-kicker");
+    const projectTags = document.getElementById("project-tags");
+    const projectTitle = document.getElementById("project-title");
+    const projectCopy = document.getElementById("project-copy");
+
+    projectTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const data = publicProjects[tab.dataset.project];
+        if (!data) return;
+        projectTabs.forEach((item) => {
+          const active = item === tab;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-selected", active ? "true" : "false");
+        });
+        projectImage.src = data.image;
+        projectImage.alt = data.alt;
+        projectIndex.textContent = data.index;
+        projectKicker.textContent = data.kicker;
+        projectTags.innerHTML = data.tags.map((tag) => `<span class="tag">${tag}</span>`).join("");
+        projectTitle.textContent = data.title;
+        projectCopy.textContent = data.copy;
+      });
+    });
+  </script>
+</body>
+</html>
+"""
 
 
 LOGIN_TEMPLATE = """

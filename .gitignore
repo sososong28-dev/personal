@@ -11,10 +11,16 @@ __pycache__/
 venv/
 env/
 
+# Node
+node_modules/
+
 # Local process/log artifacts
 *.log
 *.pid
 nohup.out
+
+# Local deploy archives and visual verification artifacts
+.deploy/
 
 # SQLite databases
 *.db
