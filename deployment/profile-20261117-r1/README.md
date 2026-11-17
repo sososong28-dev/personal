@@ -19,8 +19,11 @@
 
 ## 回滚
 
-脚本输出 `/root/profile-public-backup-<UTC时间>/`。恢复其中 `nginx.before.conf` 到 `config-path.txt`指定文件，`nginx -t`通过后执行 `systemctl reload nginx`。不修改数据库和账号，不删除旧静态资源。若已有相同版本，脚本停止。已通过Workbench核对现有两个精确公开路由：仅代理至127.0.0.1:5001并传递四个请求头。脚本只替换这两个完整匹配的路由；任何差异都会停止。实际配置文件为`/etc/nginx/sites-enabled/exec-tool`，该server同时监听80和443，原服务器级HTTP跳转规则保留。
+脚本输出 `/root/profile-public-backup-<UTC时间>/`。恢复其中 `nginx.before.conf` 到 `config-path.txt`指定文件，`nginx -t`通过后执行 `systemctl reload nginx`。不修改数据库和账号，不删除旧静态资源。若已有相同版本且文件内容与发布包完全相同，允许复用；存在任何差异会停止。已通过Workbench核对现有两个精确公开路由：仅代理至127.0.0.1:5001并传递四个请求头。脚本只替换这两个完整匹配的路由；任何差异都会停止。实际配置文件为`/etc/nginx/sites-enabled/excel-tool`，该server同时监听80和443，原服务器级HTTP跳转规则保留。
 
 ## 预发验证
 
 私人预览已验证1440/390/375px、正常和减少动态、产品无相交遮挡、七个产品/资料入口的键盘展开、Esc关闭及焦点返回；鼠标点击AI卡片实际图片可打开原图。公开构建还需按实际 `/profile` 路径校验资源。独立Safari及实体手机未测；不得把本包准备完成写为生产已上线。
+
+
+重载后使用全新本地TLS连接最多重试12次，每次间隔0.3秒，等待Nginx新worker就绪；失败仍自动恢复原配置。不会绕过TLS证书校验。

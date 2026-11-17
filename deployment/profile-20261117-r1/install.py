@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Install only the reviewed public page. No application import, account or DB writes."""
-import argparse,datetime,hashlib,json,os,re,shutil,sqlite3,subprocess,tarfile,tempfile
+import argparse,datetime,hashlib,json,os,re,shutil,sqlite3,subprocess,tarfile,tempfile,time
 from pathlib import Path
 VERSION='20261117-r1'; HOST='8.136.223.57'
 BASE=Path(__file__).resolve().parent
@@ -61,7 +61,15 @@ def main():
  if not before.get('accounts_sha256') or not before.get('env_sha256'):raise RuntimeError('Expected production account DB and .env not found; inspect actual paths before deployment')
  stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d-%H%M%S');backup=Path('/root')/('profile-public-backup-'+stamp);backup.mkdir(mode=0o700);(backup/'nginx.before.conf').write_text(original);os.chmod(backup/'nginx.before.conf',0o600)
  target=Path('/var/www/profile-public')/VERSION
- if target.exists():raise RuntimeError('Version already exists; inspect prior deployment instead of overwriting')
+ reuse_target=target.exists()
+ if reuse_target:
+  with tarfile.open(archive,'r:gz') as tf:
+   expected_files={member.name for member in tf.getmembers() if member.isfile()}
+   actual_files={str(f.relative_to(target)) for f in target.rglob('*') if f.is_file()}
+   if expected_files!=actual_files:raise RuntimeError('Existing version file list mismatch')
+   for member in tf.getmembers():
+    dest=target/member.name
+    if dest.is_symlink() or hashlib.sha256(dest.read_bytes()).digest()!=hashlib.sha256(tf.extractfile(member).read()).digest():raise RuntimeError('Existing release differs from checked archive')
  target.parent.mkdir(parents=True,exist_ok=True)
  staging=Path(tempfile.mkdtemp(prefix='.profile-stage-',dir=str(target.parent)))
  try:
@@ -71,14 +79,23 @@ def main():
     dest=staging/member.name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(tf.extractfile(member).read());os.chmod(dest,0o644)
   for folder in staging.rglob('*'):
    if folder.is_dir():os.chmod(folder,0o755)
-  os.chmod(staging,0o755);staging.rename(target)
+  os.chmod(staging,0o755)
+  if reuse_target:shutil.rmtree(staging)
+  else:staging.rename(target)
   snippet=f'''\n    # Reviewed public profile {VERSION}; private application routes remain proxied.\n    location = /profile {{\n        alias {target}/index.html;\n        default_type text/html;\n        add_header Cache-Control "no-cache";\n        add_header X-Content-Type-Options nosniff;\n        add_header X-Frame-Options DENY;\n    }}\n    location = /profile/ {{ return 301 /profile$is_args$args; }}\n    location ^~ /profile-assets/{VERSION}/ {{\n        alias {target}/;\n        autoindex off;\n        expires 7d;\n        add_header X-Content-Type-Options nosniff;\n    }}\n'''
   patched=original[:start]+clean_block[:-1]+snippet+clean_block[-1:]+original[end:]
   changed=False
   try:
    config.write_text(patched);changed=True;run('nginx','-t');run('systemctl','reload','nginx')
-   html=run('curl','--fail','--silent','--show-error','--resolve',f'{HOST}:443:127.0.0.1',f'https://{HOST}/profile')
-   if '产品市场' not in html or f'/profile-assets/{VERSION}/' not in html:raise RuntimeError('Public page smoke check failed')
+   html=''
+   # systemctl reload returns before all nginx workers finish loading the new config.
+   for attempt in range(12):
+    html=run('curl','--fail','--silent','--show-error','--noproxy','*','--resolve',f'{HOST}:443:127.0.0.1',f'https://{HOST}/profile')
+    if '产品市场' in html and f'/profile-assets/{VERSION}/' in html:break
+    time.sleep(0.3)
+   else:
+    (backup/'failed-public-response.html').write_text(html)
+    raise RuntimeError('Public page readiness check failed; response saved with backup')
    after=account_state()
    if before!=after:raise RuntimeError('Account/environment fingerprints changed during deployment; investigate')
   except BaseException:
