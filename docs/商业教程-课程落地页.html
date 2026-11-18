@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>从个人经历到商业名片｜定制化个人网站课程</title>
+  <meta name="description" content="一套把个人经历、项目案例、AI 工作流和商业表达打包成公开页与私密案例库的方法。" />
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: #0c0c0c;
+      color: #f4f1ea;
+      font-family: "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.72;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    .page { min-height: 100vh; }
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px clamp(20px, 5vw, 72px);
+      background: rgba(12, 12, 12, .82);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      backdrop-filter: blur(18px);
+    }
+    .brand { display: grid; gap: 2px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; line-height: 1; }
+    .brand span:last-child { color: rgba(255,255,255,.48); font-size: 12px; letter-spacing: .28em; }
+    .nav-links { display: flex; align-items: center; gap: 18px; color: rgba(255,255,255,.62); font-size: 13px; font-weight: 800; }
+    .nav-links a:hover { color: #fff; }
+    .nav-cta { border: 1px solid rgba(255,255,255,.16); border-radius: 999px; padding: 8px 14px; color: #fff; background: rgba(255,255,255,.04); }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: calc(100vh - 74px);
+      display: grid;
+      align-items: center;
+      padding: clamp(56px, 8vw, 112px) max(clamp(20px, 6vw, 88px), calc((100vw - 1280px) / 2));
+      background: linear-gradient(115deg, #0c0c0c 0%, #171310 54%, #0c0c0c 100%);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .72fr); gap: clamp(32px, 5vw, 72px); align-items: end; }
+    .eyebrow {
+      display: inline-flex;
+      margin: 0 0 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      padding: 8px 14px;
+      color: #ff2442;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0;
+      font-size: clamp(48px, 7vw, 104px);
+      line-height: .94;
+      letter-spacing: 0;
+      font-weight: 1000;
+      text-wrap: balance;
+    }
+    .hero h1 span,
+    .hero h1 strong {
+      display: block;
+    }
+    .hero h1 strong {
+      display: block;
+      background: linear-gradient(180deg, #fff7eb 0%, #aeb8c2 58%, #5c6168 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .lead { max-width: 760px; margin: 30px 0 0; color: rgba(255,255,255,.74); font-size: clamp(18px, 2vw, 24px); font-weight: 650; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      border-radius: 999px;
+      padding: 0 20px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: #ff2442;
+      color: #fff;
+      font-weight: 900;
+    }
+    .button.secondary { background: transparent; color: rgba(255,255,255,.84); }
+    .hero-card {
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+      padding: 28px;
+      box-shadow: 0 28px 70px rgba(0,0,0,.28);
+    }
+    .hero-card h2 { margin: 0; color: #fff; font-size: 32px; line-height: 1.06; }
+    .hero-card p { margin: 14px 0 0; color: rgba(255,255,255,.62); }
+    .mini-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+    .mini { min-height: 112px; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; background: rgba(17,17,17,.74); padding: 16px; }
+    .mini small { color: rgba(255,255,255,.42); font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .mini strong { display: block; margin-top: 10px; color: #fff; font-size: 20px; line-height: 1.12; }
+    section { padding: 92px clamp(20px, 6vw, 88px); }
+    .inner { max-width: 1280px; margin: 0 auto; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 34px; }
+    .section-head h2 { margin: 0; font-size: clamp(34px, 5vw, 72px); line-height: .98; letter-spacing: 0; }
+    .section-note { max-width: 540px; margin: 0; color: rgba(255,255,255,.58); }
+    .light { background: #f4f1ea; color: #111; }
+    .light .eyebrow { border-color: rgba(17,17,17,.08); background: rgba(17,17,17,.04); color: #ff2442; }
+    .light .section-note { color: rgba(17,17,17,.58); }
+    .pain-grid, .outcome-grid, .price-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      min-height: 240px;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 24px;
+      background: #151515;
+      padding: 26px;
+    }
+    .light .card { border-color: rgba(17,17,17,.1); background: #fff; }
+    .card small { color: #ff2442; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .card h3 { margin: 24px 0 12px; font-size: 28px; line-height: 1.08; }
+    .card p { margin: 0; color: rgba(255,255,255,.62); }
+    .light .card p { color: rgba(17,17,17,.62); }
+    .module-list { display: grid; gap: 12px; counter-reset: module; }
+    .module {
+      counter-increment: module;
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr) minmax(220px, .42fr);
+      gap: 22px;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 24px;
+      background: rgba(255,255,255,.035);
+      padding: 20px;
+    }
+    .module::before {
+      content: counter(module, decimal-leading-zero);
+      color: #ff2442;
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 1000;
+    }
+    .module h3 { margin: 0; font-size: 24px; }
+    .module p { margin: 8px 0 0; color: rgba(255,255,255,.58); }
+    .module span { justify-self: end; color: rgba(255,255,255,.44); font-size: 13px; font-weight: 800; }
+    .deliverables { display: grid; grid-template-columns: .72fr 1.28fr; gap: 18px; }
+    .deliverable-main {
+      border-radius: 28px;
+      background: #101010;
+      color: #fff;
+      padding: 30px;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .deliverable-main strong { color: #ff2442; font-size: 68px; line-height: .9; }
+    .deliverable-main h3 { margin: 24px 0 0; font-size: 42px; line-height: 1; }
+    .deliverable-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .deliverable { border: 1px solid rgba(17,17,17,.1); border-radius: 22px; background: #fff; padding: 22px; }
+    .deliverable h3 { margin: 0 0 10px; font-size: 22px; }
+    .deliverable p { margin: 0; color: rgba(17,17,17,.6); }
+    .price { min-height: 360px; display: flex; flex-direction: column; justify-content: space-between; }
+    .price strong { color: #ff2442; font-size: 48px; line-height: 1; }
+    .price ul { margin: 22px 0 0; padding-left: 18px; color: rgba(255,255,255,.64); }
+    .price li + li { margin-top: 8px; }
+    .cta {
+      background: #f4f1ea;
+      color: #111;
+      border-top: 1px solid rgba(17,17,17,.08);
+    }
+    .cta-box {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, .42fr);
+      gap: 24px;
+      align-items: center;
+      border-radius: 30px;
+      background: #fff;
+      padding: clamp(28px, 5vw, 52px);
+      box-shadow: 0 28px 70px rgba(17,17,17,.12);
+    }
+    .cta h2 { margin: 0; font-size: clamp(38px, 6vw, 88px); line-height: .94; }
+    .cta p { color: rgba(17,17,17,.62); font-size: 18px; }
+    .source { color: rgba(255,255,255,.42); font-size: 12px; }
+    footer { padding: 26px clamp(20px, 6vw, 88px) 44px; color: rgba(255,255,255,.4); background: #0c0c0c; font-size: 13px; }
+    @media (max-width: 900px) {
+      .nav { align-items: flex-start; }
+      .nav-links { display: none; }
+      .hero-grid, .deliverables, .cta-box { grid-template-columns: 1fr; }
+      .hero { min-height: auto; }
+      .section-head { display: block; }
+      .section-note { margin-top: 14px; }
+      .pain-grid, .outcome-grid, .price-grid, .deliverable-list { grid-template-columns: 1fr; }
+      .module { grid-template-columns: 1fr; }
+      .module span { justify-self: start; }
+    }
+    @media (max-width: 640px) {
+      body { background: #f6f6f4; }
+      .page { width: calc(100% - 18px); margin: 8px auto 18px; border-radius: 24px; overflow: hidden; background: #0c0c0c; }
+      .nav { border-radius: 24px 24px 0 0; padding: 24px 22px 8px; }
+      .hero { padding: 52px 22px 42px; }
+      h1 { font-size: clamp(40px, 11vw, 52px); line-height: 1.02; }
+      .lead { font-size: 16px; line-height: 1.82; }
+      .actions { display: grid; }
+      .button { width: 100%; }
+      section { padding: 46px 22px; }
+      .section-head h2 { font-size: 38px; }
+      .hero-card, .card, .deliverable-main, .deliverable, .cta-box { border-radius: 20px; }
+      .deliverable-main { min-height: auto; }
+      .deliverable-main strong { font-size: 54px; }
+      .deliverable-main h3 { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="nav">
+      <a class="brand" href="#"><span>Personal Site</span><span>Commercial Course</span></a>
+      <div class="nav-links">
+        <a href="#pain">痛点</a>
+        <a href="#modules">目录</a>
+        <a href="#deliverables">交付</a>
+        <a href="#pricing">价格</a>
+        <a class="nav-cta" href="#cta">开始打包课程</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">AI × PERSONAL BRAND × CASE LIBRARY</p>
+          <h1><span>把你的经历</span><strong>做成能成交的个人网站</strong></h1>
+          <p class="lead">这不是模板建站课，而是一套把个人能力、项目案例、AI 工作流和商业表达，打包成“公开页 + 私密案例库”的方法。</p>
+          <div class="actions">
+            <a class="button" href="#deliverables">查看交付物</a>
+            <a class="button secondary" href="#modules">查看课程目录</a>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <p class="eyebrow">Course Promise</p>
+          <h2>从简历和作品集，升级为对外信任资产。</h2>
+          <p>适合产品、品牌、市场、GTM、商品、咨询和创业者，把项目经历转成高管、投资者、合作方能理解的商业表达。</p>
+          <div class="mini-grid">
+            <div class="mini"><small>公开页</small><strong>高效建立第一层信任</strong></div>
+            <div class="mini"><small>私密页</small><strong>承接完整案例与证据</strong></div>
+            <div class="mini"><small>项目</small><strong>讲清判断、拆解和结果</strong></div>
+            <div class="mini"><small>AI</small><strong>用 Codex 持续迭代交付</strong></div>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <section id="pain">
+      <div class="inner">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Why It Sells</p>
+            <h2>真正的问题不是不会建站，而是不会把经历变成信任。</h2>
+          </div>
+          <p class="section-note">课程避开“套模板”和“堆信息”，直接解决个人商业表达里最难的三件事。</p>
+        </div>
+        <div class="pain-grid">
+          <article class="card"><small>01 / SCATTERED</small><h3>经历很多，但价值说不清</h3><p>项目、图片、复盘、结果散落在不同文件里，别人没有耐心帮你拼成一条能力主线。</p></article>
+          <article class="card"><small>02 / WEAK PROOF</small><h3>做过项目，但没有案例</h3><p>“主导”“负责”“增长”如果没有问题、判断、动作、证据，就很难形成商业信任。</p></article>
+          <article class="card"><small>03 / LOW SIGNAL</small><h3>网站好看，但不支持成交</h3><p>只展示视觉和履历，不区分公开内容与私密证据，就无法承接高质量合作机会。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="light" id="outcome">
+      <div class="inner">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Outcome</p>
+            <h2>学完后，至少完成一套可对外使用的网站资产。</h2>
+          </div>
+          <p class="section-note">不是一次性页面，而是能长期更新、持续承接机会的个人商业系统。</p>
+        </div>
+        <div class="outcome-grid">
+          <article class="card"><small>PUBLIC</small><h3>公开个人主页</h3><p>清晰呈现身份、方向、关键结果、项目入口、经历线和联系方式。</p></article>
+          <article class="card"><small>PRIVATE</small><h3>私密案例库框架</h3><p>登录后承接完整案例、证据图片、问卷、白皮书、汇报和复盘。</p></article>
+          <article class="card"><small>WORKFLOW</small><h3>AI 迭代提示词</h3><p>把 AI 当成产品经理、设计师、前端工程师和测试人员协同使用。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="modules">
+      <div class="inner">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Curriculum</p>
+            <h2>课程目录</h2>
+          </div>
+          <p class="section-note">围绕“经历资产化、项目证据化、能力产品化、网站双层化、AI 工作流化”展开。</p>
+        </div>
+        <div class="module-list">
+          <article class="module"><div><h3>为什么个人网站不是作品集</h3><p>理解简历、作品集和个人商业网站的差异。</p></div><span>认知建立</span></article>
+          <article class="module"><div><h3>从个人经历中提炼商业定位</h3><p>把“我做过什么”改写成“我能为谁解决什么问题”。</p></div><span>定位梳理</span></article>
+          <article class="module"><div><h3>项目不是展示，而是问题解决过程</h3><p>用背景、问题、判断、拆解、动作、结果和证据重写项目。</p></div><span>案例方法</span></article>
+          <article class="module"><div><h3>公开页设计：让别人愿意继续看</h3><p>控制首页信息密度，保留高端风格和项目切换入口。</p></div><span>页面设计</span></article>
+          <article class="module"><div><h3>私密页设计：把案例变成信任资产</h3><p>完整材料放入登录后案例库，建立公开与私密边界。</p></div><span>案例库</span></article>
+          <article class="module"><div><h3>用 AI/Codex 迭代网站</h3><p>通过截图、文件和明确约束，让 AI 帮你持续改版和验证。</p></div><span>工作流</span></article>
+          <article class="module"><div><h3>上线、SEO 和对外传播</h3><p>配置公开入口、结构化数据、搜索基础和对外转发话术。</p></div><span>发布获客</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="light" id="deliverables">
+      <div class="inner">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Package</p>
+            <h2>课程交付包</h2>
+          </div>
+          <p class="section-note">可作为录播课、陪跑营或 1 对 1 服务的基础交付物。</p>
+        </div>
+        <div class="deliverables">
+          <article class="deliverable-main">
+            <div>
+              <strong>10+</strong>
+              <h3>模板、清单和提示词</h3>
+            </div>
+            <p>从定位、案例、文案、图片证据到上线检查，完整覆盖个人网站产品化流程。</p>
+          </article>
+          <div class="deliverable-list">
+            <article class="deliverable"><h3>个人网站商业定位表</h3><p>明确目标对象、核心方向和公开/私密边界。</p></article>
+            <article class="deliverable"><h3>项目案例拆解表</h3><p>把项目重写成问题解决和可复制能力。</p></article>
+            <article class="deliverable"><h3>公开页文案模板</h3><p>首屏、关键结果、能力板块、项目入口、联系方式。</p></article>
+            <article class="deliverable"><h3>私密案例库目录</h3><p>组织图片、问卷、白皮书、汇报和复盘材料。</p></article>
+            <article class="deliverable"><h3>AI/Codex 提示词包</h3><p>改版、案例拆解、移动端检查和部署验证。</p></article>
+            <article class="deliverable"><h3>上线检查清单</h3><p>公开页、私密页、图片、滚动、SEO 和服务状态。</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="inner">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Pricing</p>
+            <h2>商业化版本</h2>
+          </div>
+          <p class="section-note">第一版可以先卖录播 + 模板包，再升级为作业点评和网站陪跑。</p>
+        </div>
+        <div class="price-grid">
+          <article class="card price"><div><small>Starter</small><h3>入门版</h3><strong>199-399</strong><ul><li>录播课</li><li>模板包</li><li>提示词包</li></ul></div><a class="button secondary" href="#cta">适合自学</a></article>
+          <article class="card price"><div><small>Standard</small><h3>标准版</h3><strong>699-1299</strong><ul><li>入门版全部内容</li><li>一次项目作业点评</li><li>一次公开页结构反馈</li></ul></div><a class="button" href="#cta">主推版本</a></article>
+          <article class="card price"><div><small>Premium</small><h3>高阶版</h3><strong>2999-9999</strong><ul><li>1 对 1 定位梳理</li><li>项目案例深度打磨</li><li>网站部署陪跑</li></ul></div><a class="button secondary" href="#cta">适合高价值客户</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="cta">
+      <div class="inner">
+        <div class="cta-box">
+          <div>
+            <p class="eyebrow">Next Step</p>
+            <h2>先卖第一版 MVP。</h2>
+            <p>建议先录 3 节核心课，配 4 个模板，用现有个人网站作为贯穿案例。先验证付费意愿，再扩展完整 6-8 节课程。</p>
+          </div>
+          <div>
+            <a class="button" href="./商业教程-学员作业模板包.md">查看模板包</a>
+            <p class="source">本页面基于本地课程框架、销售页文案、第一节课逐字稿和作业模板包生成。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>© 2026 个人网站商业教程。课程素材可继续打包为 PDF、录播课讲义或线上销售页。</footer>
+</body>
+</html>

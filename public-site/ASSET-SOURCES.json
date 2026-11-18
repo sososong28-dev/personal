@@ -1,0 +1,209 @@
+[
+  {
+    "file": "assets/nelson.webp",
+    "source": "原项目归档 / nelson-hero-character.webp",
+    "source_sha256": "bcd5a909008be3007fe7f351d3e68c71fd34ca2b4f002045e3897f1120125a3e",
+    "sha256": "bcd5a909008be3007fe7f351d3e68c71fd34ca2b4f002045e3897f1120125a3e",
+    "kind": "既有数字形象",
+    "note": "非本人实拍，未生成新肖像"
+  },
+  {
+    "file": "assets/001-source.jpg",
+    "source": "原项目归档 / feichao-001-smzdm.jpg",
+    "source_sha256": "4885186bcf1334a20213a0f7fccd765aebd97d1e22ff98ed960cbe16c19615a6",
+    "sha256": "4885186bcf1334a20213a0f7fccd765aebd97d1e22ff98ed960cbe16c19615a6",
+    "kind": "真实商品资料",
+    "note": "第三方商品页历史图；保留完整原图用于出处核对"
+  },
+  {
+    "file": "assets/yikou-source.jpg",
+    "source": "原项目归档 / product-family.jpg",
+    "source_sha256": "50d02bdb06fe3c38ff9dd540ab7cc82cd3276fe5a6af1fe53c0330e092290287",
+    "sha256": "50d02bdb06fe3c38ff9dd540ab7cc82cd3276fe5a6af1fe53c0330e092290287",
+    "kind": "原项目产品图",
+    "note": "保留包装上的代言与品牌文字"
+  },
+  {
+    "file": "assets/yikou-ecommerce.jpg",
+    "source": "原项目归档 / ecommerce-grid.jpg",
+    "source_sha256": "1c073ce715baf8982af8c02d5b6c2a93380c561aeb8425f76d1bb547bb377979",
+    "sha256": "b4675e6d25e560195c8bdf67056752002f1fff3c440ba5dc9c1899322d3ca93b",
+    "kind": "原项目电商货架",
+    "note": "历史资料，不能证明当前销售"
+  },
+  {
+    "file": "assets/yikou-retail.jpg",
+    "source": "原项目归档 / retail-display.jpg",
+    "source_sha256": "0708dd2d932e67c44b20baaedc07c9260e6fb25408b95845b071fa83c0c11457",
+    "sha256": "45663741dd4de77a8affdf53faa4d7bdd9a124cf63fb21995a8650a910a53a76",
+    "kind": "原项目线下终端",
+    "note": "历史资料"
+  },
+  {
+    "file": "assets/yikou-iteration.jpg",
+    "source": "原项目归档 / product-iteration.jpg",
+    "source_sha256": "f56251e6dcedd7d418a542e9041f61482de9059c39da03af722723401096904b",
+    "sha256": "6c45a290e4225ee6dd6f5de9e961da3b68d7b6d036a11ce4fb271070922121c4",
+    "kind": "原项目包装迭代",
+    "note": "历史资料"
+  },
+  {
+    "file": "assets/taian-2020.jpg",
+    "source": "原项目归档 / tai-on-brand-story-2020.jpg",
+    "source_sha256": "4a754b1e4f88bb0d19f56e179fbb2bc1d271945956c350c0792c3f63ae693784",
+    "sha256": "4a754b1e4f88bb0d19f56e179fbb2bc1d271945956c350c0792c3f63ae693784",
+    "kind": "历史媒体画面",
+    "note": "饮食男女 2020 品牌故事，非本人拍摄；不拿活鸡图片冒充冷冻产品"
+  },
+  {
+    "file": "assets/001-product-house.webp",
+    "source": "原项目归档 / product-house.webp",
+    "source_sha256": "b1efe93c20cf20147966e2f6af1f49268f133dd0d34ffbabd0a273d782220bfe",
+    "sha256": "b1efe93c20cf20147966e2f6af1f49268f133dd0d34ffbabd0a273d782220bfe",
+    "kind": "原项目产品屋",
+    "note": "原有产品定义资料；不作为医学或销量证据"
+  },
+  {
+    "file": "assets/sound-flow.webp",
+    "source": "原项目归档 / ai-soundscape-flow.webp",
+    "source_sha256": "bfe79f1b5fb325ca7801d6dd60cd74d01caf3d5474d7903b84955ea03efdafd0",
+    "sha256": "bfe79f1b5fb325ca7801d6dd60cd74d01caf3d5474d7903b84955ea03efdafd0",
+    "kind": "原有服务路径图",
+    "note": "流程说明，不能证明上线或用户规模"
+  },
+  {
+    "file": "assets/sound-demo.jpg",
+    "source": "原项目归档 / 01.png",
+    "source_sha256": "c6cf3781ba0c7412996a1d80e9d92dd2d6101b8dd2cdd57f5fc3247cbc543a4e",
+    "sha256": "7e37621401988c34b00509f665bf1eb45248d9a113351dde395c28995aa186ca",
+    "kind": "真实历史界面截图",
+    "note": "现有 H5 实际运行截图，2026-11-11 素材库；不是本轮上线验证"
+  },
+  {
+    "file": "assets/learning-demo.jpg",
+    "source": "原项目归档 / 01.png",
+    "source_sha256": "06e969800a14f31606b348c3b098498ffcd49d7efca6e218ca5e24bea27f8d5c",
+    "sha256": "29a3c9cfab10ed1009bb12915cde184c2e9deeb685f381a0caa797b451aa836c",
+    "kind": "真实历史界面截图",
+    "note": "历史界面截图，空白示例数据；不是培训结果"
+  },
+  {
+    "file": "assets/001-cutout.svg",
+    "sha256": "d67685a7ec9080170e8f427c0b193f537fbbda9925767f312aecb93fe3d240df",
+    "kind": "可编辑SVG透明裁切",
+    "source": "001-source.jpg",
+    "note": "只裁周围背景；完整来源图片另存，文字未重绘；不是3D模型"
+  },
+  {
+    "file": "assets/yikou-blue.svg",
+    "sha256": "25be18a3a74370b3efecc62407913771e119fe9c1f4b36f09170d889abc444e0",
+    "kind": "可编辑SVG透明裁切",
+    "source": "yikou-source.jpg",
+    "note": "只裁周围背景；完整来源图片另存，文字未重绘；不是3D模型"
+  },
+  {
+    "file": "assets/yikou-red.svg",
+    "sha256": "247417ea6f69f05166f9204fe27176e75c0df7e26df0a1262c77052524acb038",
+    "kind": "可编辑SVG透明裁切",
+    "source": "yikou-source.jpg",
+    "note": "只裁周围背景；完整来源图片另存，文字未重绘；不是3D模型"
+  },
+  {
+    "file": "assets/yikou-green.svg",
+    "sha256": "982d24262b0b2e090df19af655ed03ebe8e6597b458648a8a57101fc766e0fc7",
+    "kind": "可编辑SVG透明裁切",
+    "source": "yikou-source.jpg",
+    "note": "只裁周围背景；完整来源图片另存，文字未重绘；不是3D模型"
+  },
+  {
+    "file": "assets/001-event-redacted.jpg",
+    "source": "原项目归档 / 大山_20260928_439.jpg",
+    "kind": "真实现场摄影脱敏副本",
+    "note": "保留原署名/水印；车牌遮盖；Vision检测0张可识别人脸；人工仍需复核远景人群",
+    "sha256": "5acd59309c1a415c216cc2de774a4c0a57e14bbca62d9b00c5ade947e8189ced"
+  },
+  {
+    "file": "assets/devices-official.jpg",
+    "source": "https://edaxiang-web.oss-cn-hangzhou.aliyuncs.com/edaxiang.com/4.%E5%99%A8%E5%85%B7%E7%B3%BB%E5%88%97%E5%9B%BE.jpg",
+    "source_page": "https://www.edaxiang.com/",
+    "retrieved": "2026-11-17",
+    "source_sha256": "6d0fe1236e8e1ae4ec06d42d622f48511870f1a363d8fac85004390ae28baaf0",
+    "sha256": "6d0fe1236e8e1ae4ec06d42d622f48511870f1a363d8fac85004390ae28baaf0",
+    "kind": "官网公开产品展示图",
+    "note": "同一张官方系列图；未生成产品像素。型号对应、拍摄/渲染方式与AI功能未确认。原图保留品牌文字；裁切只用于主体展示。"
+  },
+  {
+    "file": "assets/device-cylinder.svg",
+    "source": "https://edaxiang-web.oss-cn-hangzhou.aliyuncs.com/edaxiang.com/4.%E5%99%A8%E5%85%B7%E7%B3%BB%E5%88%97%E5%9B%BE.jpg",
+    "source_page": "https://www.edaxiang.com/",
+    "retrieved": "2026-11-17",
+    "source_sha256": "6d0fe1236e8e1ae4ec06d42d622f48511870f1a363d8fac85004390ae28baaf0",
+    "sha256": "fa6c577a5eadf083ad52fddbfb6d97d0a9ce61f303dd5f5ca5f0deda4c6edbec",
+    "kind": "原图主体透明遮罩",
+    "note": "同一张官方系列图；未生成产品像素。型号对应、拍摄/渲染方式与AI功能未确认。原图保留品牌文字；裁切只用于主体展示。 主体局部裁切后嵌入SVG，避免重复嵌入整张1920px原图。"
+  },
+  {
+    "file": "assets/device-curved.svg",
+    "source": "https://edaxiang-web.oss-cn-hangzhou.aliyuncs.com/edaxiang.com/4.%E5%99%A8%E5%85%B7%E7%B3%BB%E5%88%97%E5%9B%BE.jpg",
+    "source_page": "https://www.edaxiang.com/",
+    "retrieved": "2026-11-17",
+    "source_sha256": "6d0fe1236e8e1ae4ec06d42d622f48511870f1a363d8fac85004390ae28baaf0",
+    "sha256": "51c002d9172892830be81eecb214b4b510568d90d276036656a23a1c8659ef19",
+    "kind": "原图主体透明遮罩",
+    "note": "完整可见器具、底座、遥控器与连接线的原图SVG遮罩；替换先前裁掉收纳盒的另一件产品裁切。没有补画不可见结构。"
+  },
+  {
+    "file": "assets/001-cutout.png",
+    "source": "001-source.jpg",
+    "derived_from": "assets/001-cutout.svg",
+    "source_sha256": "",
+    "sha256": "8f7e50d5342e9dd4c7ab4fa845ebb14ffdbf1a4f0ddb979318aba5356fc9c7aa",
+    "kind": "可编辑原图遮罩的PNG导出",
+    "note": "不生成产品像素；SVG保留作为编辑源，页面使用PNG避免依赖内嵌SVG遮罩。"
+  },
+  {
+    "file": "assets/device-cylinder.png",
+    "source": "https://edaxiang-web.oss-cn-hangzhou.aliyuncs.com/edaxiang.com/4.%E5%99%A8%E5%85%B7%E7%B3%BB%E5%88%97%E5%9B%BE.jpg",
+    "derived_from": "assets/device-cylinder.svg",
+    "source_sha256": "6d0fe1236e8e1ae4ec06d42d622f48511870f1a363d8fac85004390ae28baaf0",
+    "sha256": "b5b9714c77fc837daf464103c4ecd79fd5a7bc9a79a1aad285e24b1d9730bf65",
+    "kind": "可编辑原图遮罩的PNG导出",
+    "note": "不生成产品像素；SVG保留作为编辑源，页面使用PNG避免依赖内嵌SVG遮罩。"
+  },
+  {
+    "file": "assets/device-curved.png",
+    "source": "https://edaxiang-web.oss-cn-hangzhou.aliyuncs.com/edaxiang.com/4.%E5%99%A8%E5%85%B7%E7%B3%BB%E5%88%97%E5%9B%BE.jpg",
+    "derived_from": "assets/device-curved.svg",
+    "source_sha256": "6d0fe1236e8e1ae4ec06d42d622f48511870f1a363d8fac85004390ae28baaf0",
+    "sha256": "25d767713a319a7aae7abf5593a10cacff6a44046a9c256a06dd82179f16fbb5",
+    "kind": "可编辑原图遮罩的PNG导出",
+    "note": "不生成产品像素；SVG保留作为编辑源，页面使用PNG避免依赖内嵌SVG遮罩。"
+  },
+  {
+    "file": "assets/yikou-blue.png",
+    "source": "yikou-source.jpg",
+    "derived_from": "assets/yikou-blue.svg",
+    "source_sha256": "",
+    "sha256": "e7e96a2a36597f169abb9ded0cde90470a684a271c3ab090c4d640483b2fd80a",
+    "kind": "可编辑原图遮罩的PNG导出",
+    "note": "不生成产品像素；SVG保留作为编辑源，页面使用PNG避免依赖内嵌SVG遮罩。"
+  },
+  {
+    "file": "assets/yikou-green.png",
+    "source": "yikou-source.jpg",
+    "derived_from": "assets/yikou-green.svg",
+    "source_sha256": "",
+    "sha256": "45592112725f39f721202fcf670e5b108ca92e4dcbb94424b2ce1f11323bc03e",
+    "kind": "可编辑原图遮罩的PNG导出",
+    "note": "不生成产品像素；SVG保留作为编辑源，页面使用PNG避免依赖内嵌SVG遮罩。"
+  },
+  {
+    "file": "assets/yikou-red.png",
+    "source": "yikou-source.jpg",
+    "derived_from": "assets/yikou-red.svg",
+    "source_sha256": "",
+    "sha256": "281735611824aea6bddc1739b49d391ccf6732867a1b580caebc075b29c3f568",
+    "kind": "可编辑原图遮罩的PNG导出",
+    "note": "不生成产品像素；SVG保留作为编辑源，页面使用PNG避免依赖内嵌SVG遮罩。"
+  }
+]

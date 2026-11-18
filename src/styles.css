@@ -1,0 +1,448 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0c0c0c;
+  --surface-dark: #151515;
+  --surface-light: #f4f1ea;
+  --accent: #ff2442;
+  --accent-hover: #ff3d57;
+  --radius-card: 26px;
+  --radius-panel: 18px;
+  --border-on-dark: rgba(255, 255, 255, 0.1);
+  --border-on-light: rgba(17, 17, 17, 0.1);
+  --text-on-dark-muted: rgba(255, 255, 255, 0.62);
+  --text-on-light-muted: rgba(17, 17, 17, 0.62);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--ink);
+  font-family: 'Kanit', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img {
+  display: block;
+}
+
+/* Lucide remains the single icon family; normalize the interface stroke. */
+a > svg,
+button > svg {
+  stroke-width: 1.75;
+}
+
+:where(a, button):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+:where(a, button):active {
+  transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+h1,
+h2,
+h3,
+p {
+  text-wrap: pretty;
+}
+
+.nelson-heading {
+  background: linear-gradient(180deg, #fff7eb 0%, #aeb8c2 58%, #5c6168 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@media (max-width: 640px) {
+  body {
+    background: #f6f6f4;
+  }
+
+  .home-page {
+    width: calc(100% - 18px);
+    margin: 8px auto 18px;
+    border-radius: 24px;
+    background: #0c0c0c;
+  }
+
+  .home-page [style*='opacity: 0'] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .home-hero {
+    min-height: clamp(760px, 210vw, 840px);
+    border-radius: 24px 24px 0 0;
+  }
+
+  .home-nav {
+    position: relative;
+    z-index: 6;
+    padding: 26px 24px 10px;
+    letter-spacing: 0.18em;
+  }
+
+  .home-brand {
+    display: grid;
+    gap: 1px;
+    font-size: 21px;
+    line-height: 1;
+    letter-spacing: 0.14em;
+  }
+
+  .home-brand span:last-child {
+    font-size: 13px;
+    letter-spacing: 0.32em;
+  }
+
+  .home-menu {
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    justify-content: center;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .home-menu svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .home-hero-grid {
+    position: relative;
+    display: block;
+    padding: 42px 24px 36px;
+  }
+
+  .home-hero-copy {
+    position: relative;
+    z-index: 4;
+    max-width: min(270px, 72vw);
+  }
+
+  .home-hero-copy p:first-child {
+    margin-bottom: 20px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: #ff2442;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .home-hero-copy h1 {
+    font-size: clamp(58px, 17vw, 74px);
+    line-height: 0.88;
+    letter-spacing: 0;
+  }
+
+  .home-hero-copy h2 {
+    margin-top: 6px;
+    font-size: 44px;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .home-hero-copy > div:nth-child(3) p {
+    margin-top: 22px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 16px;
+    line-height: 1.85;
+  }
+
+  .home-hero-actions {
+    display: grid;
+    width: min(190px, 58vw);
+    gap: 14px;
+    margin-top: 26px;
+  }
+
+  .home-hero-actions a {
+    min-height: 48px;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+
+  .home-hero-actions a:not(:first-child) {
+    background: rgba(12, 12, 12, 0.42);
+    border-color: rgba(255, 255, 255, 0.42);
+  }
+
+  .home-hero-visual {
+    position: absolute !important;
+    inset: 120px -92px auto 108px;
+    height: 690px;
+    min-height: 0 !important;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .home-hero-visual > div:first-child {
+    height: 690px;
+  }
+
+  .home-hero-visual [aria-label='Nelson 3D interactive character scene'] {
+    transform: scale(1.08) translateX(4px);
+    transform-origin: center bottom;
+  }
+
+  .home-metrics {
+    left: -92px !important;
+    right: 56px !important;
+    bottom: 116px !important;
+    z-index: 5;
+    border-radius: 16px;
+    padding: 13px 14px !important;
+    background: rgba(17, 17, 17, 0.72) !important;
+  }
+
+  .home-metrics > div {
+    gap: 6px;
+  }
+
+  .home-metrics div div:first-child {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+
+  .home-metrics div div:last-child {
+    font-size: 14px;
+  }
+
+  .home-about {
+    margin-top: -1px;
+    border-radius: 24px 24px 0 0;
+    padding: 44px 24px 48px;
+  }
+
+  .home-about h2 {
+    max-width: 300px;
+    font-size: 42px;
+    line-height: 1.04;
+    letter-spacing: 0;
+  }
+
+  .home-about .mt-12 {
+    margin-top: 28px;
+  }
+
+  .home-about article {
+    min-height: auto;
+    border-radius: 18px;
+    padding: 22px;
+  }
+
+  .home-about article h3 {
+    margin-top: 18px;
+    font-size: 23px;
+    letter-spacing: 0;
+  }
+
+  .home-about article p:last-child {
+    margin-top: 12px;
+    line-height: 1.75;
+  }
+
+  .home-timeline,
+  .home-capabilities {
+    padding: 46px 24px;
+  }
+
+  .home-timeline > div,
+  .home-capabilities > div,
+  .home-projects > div,
+  .home-contact > div {
+    min-height: auto !important;
+  }
+
+  .home-timeline h2,
+  .home-capabilities h2,
+  .home-projects h2,
+  .home-contact h2 {
+    font-size: 34px;
+    line-height: 1.06;
+    letter-spacing: 0;
+  }
+
+  .home-timeline .mt-12,
+  .home-projects .mt-12 {
+    margin-top: 26px;
+  }
+
+  .home-timeline button {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .home-timeline article {
+    min-height: auto;
+    border-radius: 20px;
+    padding: 22px;
+  }
+
+  .home-timeline [class*='min-h-'] {
+    min-height: auto !important;
+  }
+
+  .home-timeline [class*='mt-10'] {
+    margin-top: 24px !important;
+  }
+
+  .home-timeline article h3 {
+    margin-top: 28px;
+    font-size: 42px;
+    letter-spacing: 0;
+  }
+
+  .home-capabilities .mt-10 {
+    margin-top: 24px;
+  }
+
+  .home-capabilities a.group {
+    min-height: auto;
+    border-radius: 18px;
+    padding: 22px;
+  }
+
+  .home-capabilities a.group h3 {
+    margin-top: 26px;
+    font-size: 27px;
+    letter-spacing: 0;
+  }
+
+  .home-projects {
+    padding: 46px 24px;
+    margin-top: 0;
+  }
+
+  .home-projects a {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .home-projects a h3 {
+    margin-top: 16px;
+    font-size: 24px;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+
+  .home-projects article {
+    border-radius: 20px;
+  }
+
+  .home-projects article > div:first-child {
+    min-height: 158px;
+    padding: 22px;
+  }
+
+  .home-projects article > div:last-child {
+    padding: 22px;
+  }
+
+  .home-projects article h3 {
+    font-size: 34px;
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+
+  .home-contact {
+    padding: 48px 24px 56px;
+  }
+
+  .home-contact .mt-10 {
+    margin-top: 24px;
+  }
+
+  .home-contact a.group {
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  .home-contact a.group span {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 390px) {
+  .home-page {
+    width: calc(100% - 12px);
+    margin-top: 6px;
+    border-radius: 22px;
+  }
+
+  .home-nav {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .home-hero-grid {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .home-hero-copy {
+    max-width: 246px;
+  }
+
+  .home-hero-copy h1 {
+    font-size: clamp(54px, 16vw, 66px);
+  }
+
+  .home-hero-copy h2 {
+    font-size: 39px;
+  }
+
+  .home-hero-copy > div:nth-child(3) p {
+    font-size: 15px;
+    line-height: 1.78;
+  }
+
+  .home-hero-visual {
+    inset: 132px -118px auto 86px;
+  }
+
+  .home-metrics {
+    left: -72px !important;
+    right: 112px !important;
+    bottom: 104px !important;
+  }
+
+  .home-about,
+  .home-timeline,
+  .home-capabilities,
+  .home-projects,
+  .home-contact {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
