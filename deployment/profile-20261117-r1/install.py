@@ -82,7 +82,7 @@ def main():
   os.chmod(staging,0o755)
   if reuse_target:shutil.rmtree(staging)
   else:staging.rename(target)
-  snippet=f'''\n    # Reviewed public profile {VERSION}; private application routes remain proxied.\n    location = /profile {{\n        alias {target}/index.html;\n        default_type text/html;\n        add_header Cache-Control "no-cache";\n        add_header X-Content-Type-Options nosniff;\n        add_header X-Frame-Options DENY;\n    }}\n    location = /profile/ {{ return 301 /profile$is_args$args; }}\n    location ^~ /profile-assets/{VERSION}/ {{\n        alias {target}/;\n        autoindex off;\n        expires 7d;\n        add_header X-Content-Type-Options nosniff;\n    }}\n'''
+  snippet=f'''\n    # Reviewed public profile {VERSION}; private application routes remain proxied.\n    location = /profile {{\n        if ($scheme = http) {{ return 301 https://8.136.223.57$request_uri; }}\n        alias {target}/index.html;\n        default_type text/html;\n        add_header Cache-Control "no-cache";\n        add_header X-Content-Type-Options nosniff;\n        add_header X-Frame-Options DENY;\n    }}\n    location = /profile/ {{ return 301 https://8.136.223.57/profile$is_args$args; }}\n    location ^~ /profile-assets/{VERSION}/ {{\n        if ($scheme = http) {{ return 301 https://8.136.223.57$request_uri; }}\n        alias {target}/;\n        autoindex off;\n        expires 7d;\n        add_header X-Content-Type-Options nosniff;\n    }}\n'''
   patched=original[:start]+clean_block[:-1]+snippet+clean_block[-1:]+original[end:]
   changed=False
   try:

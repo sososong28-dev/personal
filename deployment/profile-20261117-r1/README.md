@@ -19,7 +19,7 @@
 
 ## 回滚
 
-脚本输出 `/root/profile-public-backup-<UTC时间>/`。恢复其中 `nginx.before.conf` 到 `config-path.txt`指定文件，`nginx -t`通过后执行 `systemctl reload nginx`。不修改数据库和账号，不删除旧静态资源。若已有相同版本且文件内容与发布包完全相同，允许复用；存在任何差异会停止。已通过Workbench核对现有两个精确公开路由：仅代理至127.0.0.1:5001并传递四个请求头。脚本只替换这两个完整匹配的路由；任何差异都会停止。实际配置文件为`/etc/nginx/sites-enabled/excel-tool`，该server同时监听80和443，原服务器级HTTP跳转规则保留。
+脚本输出 `/root/profile-public-backup-<UTC时间>/`。恢复其中 `nginx.before.conf` 到 `config-path.txt`指定文件，`nginx -t`通过后执行 `systemctl reload nginx`。不修改数据库和账号，不删除旧静态资源。若已有相同版本且文件内容与发布包完全相同，允许复用；存在任何差异会停止。已通过Workbench核对现有两个精确公开路由：仅代理至127.0.0.1:5001并传递四个请求头。脚本只替换这两个完整匹配的路由；任何差异都会停止。实际配置文件为`/etc/nginx/sites-enabled/excel-tool`，该server同时监听80和443，静态公开首页和本版资源均显式执行HTTP到HTTPS跳转；其他业务路由保持原代理。
 
 ## 预发验证
 
@@ -27,3 +27,6 @@
 
 
 重载后使用全新本地TLS连接最多重试12次，每次间隔0.3秒，等待Nginx新worker就绪；失败仍自动恢复原配置。不会绕过TLS证书校验。
+
+
+2026-11-18 已完成服务器部署。详情见 `DEPLOYED-2026-11-18.md`。已上线后的HTTPS补齐脚本为 `finalize_https.py`；新安装脚本也包含相同跳转规则。
